@@ -11,6 +11,7 @@ import {
   editMessageTemplate,
 } from '@/lib/whatsapp/meta-api'
 import {
+  validateHeader,
   validateTemplatePayload,
   type TemplatePayload,
 } from '@/lib/whatsapp/template-validators'
@@ -25,10 +26,14 @@ const t = getT('Api')
 /**
  * Per-template lifecycle endpoint.
  *
- * PATCH  — edit an existing Meta-side template (and re-submit). Used
- *          by the "Edit" action on APPROVED rows and the "Resubmit"
- *          action on REJECTED / PAUSED rows. Meta replaces components
- *          wholesale on edit and bumps status back to PENDING.
+ * PATCH  — edit an existing template. Two paths:
+ *           • Meta-backed rows (meta_template_id set) get a component
+ *             replacement pushed to Meta first; Meta bumps them back to
+ *             PENDING.
+ *           • Local-only rows (built-in starters, never submitted) are
+ *             written straight to the DB and stay APPROVED — there is
+ *             nothing to synchronise, and this is what lets a starter
+ *             accept a header image from the Templates screen.
  *
  * DELETE — remove the template on Meta (when meta_template_id is set,
  *          scoped to a single language variant via hsm_id) AND drop
@@ -98,14 +103,78 @@ export async function PATCH(
       return NextResponse.json({ error: t('templates.notFound') }, { status: 404 })
     }
 
+    // Local-only rows (built-in starters from migrations 060/063, and any
+    // template authored here that was never pushed to Meta) have no Meta
+    // counterpart to keep in sync. PATCH on them is therefore a plain
+    // local write.
+    //
+    // This branch used to be a flat 400 "never submitted", which meant the
+    // Templates screen — the only place with a header-image upload — could
+    // not save anything at all onto a built-in template: pick "Image",
+    // upload, submit, get an error. The French/English starter catalogues
+    // were effectively read-only. Writing locally and keeping the row
+    // APPROVED is correct: nothing was submitted, so flipping to PENDING
+    // would drop the template out of the broadcast wizard for good.
     if (!existing.meta_template_id) {
-      return NextResponse.json(
-        {
-          error:
-            t('templates.neverSubmitted'),
-        },
-        { status: 400 },
-      )
+      // Deliberately NOT `validateTemplatePayload` here. That validator
+      // encodes Meta's submission rules — contiguous `{{1}} {{2}}`
+      // numbering, one sample value per variable — and the built-in
+      // starters break both on purpose (the email templates carry a bare
+      // `{{2}}` for the campaign amount, which Meta would reject but a
+      // mail client renders fine). Running it would re-create the very
+      // bug this branch exists to fix. Only the fields that have to be
+      // sane for a local send are checked.
+      if (!payload.name?.trim()) {
+        return NextResponse.json(
+          { error: t('templates.validationFailed') },
+          { status: 400 },
+        )
+      }
+      if (!payload.body_text?.trim()) {
+        return NextResponse.json(
+          { error: t('templates.validationFailed') },
+          { status: 400 },
+        )
+      }
+      try {
+        validateHeader(payload)
+      } catch (e) {
+        return NextResponse.json(
+          { error: e instanceof Error ? e.message : t('templates.validationFailed') },
+          { status: 400 },
+        )
+      }
+
+      const { data: localRow, error: localErr } = await supabase
+        .from('message_templates')
+        .update({
+          header_type: payload.header_type ?? null,
+          header_content: payload.header_content ?? null,
+          header_media_url: payload.header_media_url ?? null,
+          header_handle: payload.header_handle ?? null,
+          body_text: payload.body_text,
+          footer_text: payload.footer_text ?? null,
+          buttons: payload.buttons ?? null,
+          sample_values: payload.sample_values ?? null,
+        })
+        .eq('id', id)
+        .eq('account_id', accountId)
+        .select()
+        .single()
+
+      if (localErr) {
+        return NextResponse.json(
+          { error: t('templates.editedSaveFailed', { message: localErr.message }) },
+          { status: 500 },
+        )
+      }
+
+      return NextResponse.json({
+        success: true,
+        template: localRow,
+        local: true,
+        dry_run: false,
+      })
     }
 
     if (!EDITABLE_STATUSES.has(existing.status)) {

@@ -1014,7 +1014,9 @@
         "languages": {
           "fr": "Français",
           "en": "Anglais"
-        }
+        },
+        "headerImageHint": "Pour mettre une image dans l'en-tête d'un modèle, modifiez-le dans Paramètres → Modèles.",
+        "headerImageLink": "Ouvrir les modèles"
       },
       "selectAudience": {
         "title": "Sélectionner Unudience",
@@ -1211,7 +1213,17 @@
       "sendFailed": "Échec de l'envoi",
       "doneAll": "{count, plural, one {# email envoyé} other {# emails envoyés}}",
       "doneNone": "Aucun envoi — {count, plural, one {# erreur} other {# erreurs}}",
-      "donePartial": "{sent} envoyés, {failed} échecs"
+      "donePartial": "{sent} envoyés, {failed} échecs",
+      "image": "Image d'en-tête (optionnelle)",
+      "imageUpload": "Ajouter une image",
+      "imageReplace": "Remplacer l'image",
+      "imageRemove": "Retirer",
+      "imageHint": "Affichée au-dessus du message dans chaque email de cette diffusion. PNG, JPEG, WebP ou GIF, 5 Mo maximum.",
+      "imagePreviewAlt": "Image d'en-tête de la diffusion",
+      "imageWrongType": "Choisissez un fichier image (PNG, JPEG, WebP ou GIF).",
+      "imageTooLarge": "Image trop lourde — {max} Mo maximum.",
+      "imageUploaded": "Image téléversée",
+      "imageUploadFailed": "Échec du téléversement"
     }
   },
   "Automations": {
@@ -1952,7 +1964,9 @@
         "Marketing": "Marketing",
         "Utility": "Utility",
         "Authentication": "Unuthentication"
-      }
+      },
+      "toastSavedLocal": "Modèle enregistré localement",
+      "localEditNotice": "Modèle intégré / local — enregistré directement, sans validation Meta."
     },
     "roles": {
       "admin": "Undministrateur",

@@ -18,7 +18,31 @@ import { HEARTBEAT_MS, IDLE_AFTER_MS, type StoredPresence } from "@/lib/presence
  * It keeps heartbeating while away (so the row stays fresh, i.e. not
  * offline). When the tab closes the beats simply stop and viewers derive
  * 'offline' from staleness — no unreliable unload write needed.
+ *
+ * Failure handling is deliberately split in two, because the two have
+ * nothing to do with each other:
+ *
+ *   - A network failure ("Failed to fetch" — dev-server restart, laptop
+ *     waking from sleep, a flaky link) is retried once after a short
+ *     pause and otherwise ignored. The next 30 s beat covers the rest.
+ *     Logging it would have painted a red console for a non-event.
+ *   - A real RPC rejection (missing function, revoked grant, "No account
+ *     for caller") is a misconfiguration worth seeing — logged at most
+ *     once a minute so a broken deploy doesn't flood the console.
  */
+
+const RETRY_DELAY_MS = 3_000;
+
+/** Minimum gap between two logged RPC rejections. */
+const ERROR_LOG_INTERVAL_MS = 60_000;
+
+/** Transport-level failures that never indicate a bad RPC. */
+function isNetworkError(message: string): boolean {
+  return /failed to fetch|networkerror|load failed|network request failed|err_internet_disconnected/i.test(
+    message,
+  );
+}
+
 export function PresenceHeartbeat() {
   const { accountId } = useAuth();
 
@@ -36,6 +60,7 @@ export function PresenceHeartbeat() {
     const supabase = createClient();
     let cancelled = false;
     let lastBeatAt = 0;
+    let lastErrorLogAt = 0;
     lastActivityRef.current = Date.now();
 
     const markActive = () => {
@@ -48,7 +73,7 @@ export function PresenceHeartbeat() {
       return "online";
     };
 
-    const beat = async () => {
+    const beat = async (allowRetry = true) => {
       if (cancelled) return;
       // Coalesce bursts: a tab refocus fires visibilitychange AND focus
       // together, so skip a beat within 1s of the last to avoid two RPCs
@@ -59,9 +84,21 @@ export function PresenceHeartbeat() {
       const { error } = await supabase.rpc("touch_presence", {
         p_status: currentStatus(),
       });
-      if (error && !cancelled) {
-        // Non-fatal: presence is best-effort. Log once per failure so a
-        // misconfigured RPC is visible without spamming.
+      if (!error || cancelled) return;
+
+      // Transport failure — retry once, stay quiet.
+      if (isNetworkError(error.message)) {
+        if (allowRetry) {
+          await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
+          if (!cancelled) void beat(false);
+        }
+        return;
+      }
+
+      // Real rejection — log at most once a minute.
+      const now = Date.now();
+      if (now - lastErrorLogAt >= ERROR_LOG_INTERVAL_MS) {
+        lastErrorLogAt = now;
         console.error("[PresenceHeartbeat] touch_presence failed:", error.message);
       }
     };

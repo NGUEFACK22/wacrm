@@ -116,6 +116,54 @@ import { __resetRateLimitForTests } from '@/lib/rate-limit'
 
 const params = Promise.resolve({ id: TEMPLATE.id })
 
+describe('PATCH on a local-only template (built-in starters)', () => {
+  const localBody = {
+    name: 'paypal_deposit_verification_fr',
+    category: 'Utility',
+    language: 'fr_FR',
+    header_type: 'image',
+    header_media_url: 'https://cdn.example.com/hero.png',
+    body_text: 'CHER CLIENT,\n\nVOUS AVEZ REÇU UN DÉPÔT DE {{2}}.',
+    sample_values: { body: ['Sarah', '1 200,00 €'] },
+  }
+
+  beforeEach(() => {
+    templateRow = { ...TEMPLATE, meta_template_id: null }
+  })
+
+  it('writes locally instead of refusing with "never submitted"', async () => {
+    const res = await patchTemplate(localBody)
+
+    expect(res.status).toBe(200)
+    const data = await res.json()
+    expect(data.local).toBe(true)
+    expect(templateUpdates).toHaveLength(1)
+    expect(templateUpdates[0]).toMatchObject({
+      header_type: 'image',
+      header_media_url: 'https://cdn.example.com/hero.png',
+    })
+  })
+
+  it('never calls Meta and never moves the row to PENDING', async () => {
+    const res = await patchTemplate(localBody)
+
+    expect(res.status).toBe(200)
+    expect(meta.editMessageTemplate).not.toHaveBeenCalled()
+    expect(templateUpdates[0]).not.toHaveProperty('status')
+  })
+
+  it('still rejects a payload that fails validation', async () => {
+    const res = await patchTemplate({
+      ...localBody,
+      header_type: 'image',
+      header_media_url: '',
+    })
+
+    expect(res.status).toBe(400)
+    expect(templateUpdates).toHaveLength(0)
+  })
+})
+
 function patchTemplate(overrides: Record<string, unknown> = {}) {
   return PATCH(
     new Request('http://localhost/api/whatsapp/templates/' + TEMPLATE.id, {

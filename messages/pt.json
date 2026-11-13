@@ -1014,7 +1014,9 @@
         "languages": {
           "fr": "Francês",
           "en": "Inglês"
-        }
+        },
+        "headerImageHint": "Para colocar uma imagem no cabeçalho de um modelo, edite-o em Configurações → Modelos.",
+        "headerImageLink": "Abrir modelos"
       },
       "selectAudience": {
         "title": "Selecionar público",
@@ -1211,7 +1213,17 @@
       "sendFailed": "Falha no envio",
       "doneAll": "{count, plural, one {# e-mail enviado} other {# e-mails enviados}}",
       "doneNone": "Nada enviado — {count, plural, one {# erro} other {# erros}}",
-      "donePartial": "{sent} enviados, {failed} falharam"
+      "donePartial": "{sent} enviados, {failed} falharam",
+      "image": "Imagem de cabeçalho (opcional)",
+      "imageUpload": "Adicionar uma imagem",
+      "imageReplace": "Trocar a imagem",
+      "imageRemove": "Remover",
+      "imageHint": "Exibida acima da mensagem em cada e-mail deste disparo. PNG, JPEG, WebP ou GIF, 5 MB no máximo.",
+      "imagePreviewAlt": "Imagem de cabeçalho do disparo",
+      "imageWrongType": "Escolha um arquivo de imagem (PNG, JPEG, WebP ou GIF).",
+      "imageTooLarge": "Imagem muito grande — {max} MB no máximo.",
+      "imageUploaded": "Imagem enviada",
+      "imageUploadFailed": "Falha no envio"
     }
   },
   "Automations": {
@@ -1952,7 +1964,9 @@
         "Marketing": "Marketing",
         "Utility": "Utilidade",
         "Authentication": "Autenticação"
-      }
+      },
+      "toastSavedLocal": "Modelo salvo localmente",
+      "localEditNotice": "Modelo integrado / local — salvo diretamente, sem revisão da Meta."
     },
     "roles": {
       "admin": "Administrador",

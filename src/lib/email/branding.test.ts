@@ -88,3 +88,54 @@ describe('buildBrandedHtml', () => {
     expect(html).not.toContain('background:url');
   });
 });
+
+describe('buildBrandedHtml campaign hero image', () => {
+  const HERO = 'https://cdn.example.com/campaign/hero.png';
+
+  it('renders the hero image above the body', () => {
+    const html = buildBrandedHtml('hello', {
+      logo_url: 'https://cdn.example.com/logo.png',
+      brand_name: 'Acme',
+      brand_color: '#111827',
+    }, { heroImageUrl: HERO });
+
+    expect(html).toContain(HERO);
+    // Hero sits between the brand header and the body paragraph.
+    expect(html!.indexOf(HERO)).toBeGreaterThan(
+      html!.indexOf('https://cdn.example.com/logo.png'),
+    );
+    expect(html!.indexOf(HERO)).toBeLessThan(html!.indexOf('hello'));
+  });
+
+  it('builds a shell for an unbranded account when only a hero is set', () => {
+    const html = buildBrandedHtml('hello', empty, { heroImageUrl: HERO });
+    expect(html).not.toBeNull();
+    expect(html).toContain(HERO);
+    expect(html).toContain('hello');
+  });
+
+  it('still returns null with neither branding nor a hero', () => {
+    expect(buildBrandedHtml('hello', empty, { heroImageUrl: null })).toBeNull();
+    expect(buildBrandedHtml('hello', empty, { heroImageUrl: '   ' })).toBeNull();
+  });
+
+  it('refuses a non-http(s) hero URL', () => {
+    const html = buildBrandedHtml('hello', {
+      logo_url: null,
+      brand_name: 'Acme',
+      brand_color: '#111827',
+    }, { heroImageUrl: 'javascript:alert(1)' });
+
+    expect(html).not.toContain('javascript:');
+    expect(html).toContain('Acme');
+  });
+
+  it('escapes the hero alt text', () => {
+    const html = buildBrandedHtml('hello', empty, {
+      heroImageUrl: HERO,
+      heroAlt: '" onerror="alert(1)',
+    });
+    expect(html).not.toContain('onerror="alert(1)"');
+    expect(html).toContain('&quot; onerror=&quot;alert(1)');
+  });
+});

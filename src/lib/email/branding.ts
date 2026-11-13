@@ -87,25 +87,44 @@ function renderBodyHtml(text: string, color: string): string {
 /**
  * Wrap a plain-text email body in a branded HTML shell.
  *
- * When the account has no logo and no brand name, returns `null` so the
+ * `heroImageUrl` is the campaign-level header image picked in the
+ * broadcast composer. It is rendered above the body, under the brand
+ * logo, at the full inner width. When it is set the shell is built even
+ * for an account with no branding at all — otherwise an unbranded
+ * account could upload an image and silently get plain text.
+ *
+ * When there is neither branding nor a hero image, returns `null` so the
  * caller sends plain text only (no pointless wrapper).
  */
 export function buildBrandedHtml(
   text: string,
   branding: AccountBranding,
+  options?: { heroImageUrl?: string | null; heroAlt?: string | null },
 ): string | null {
   const logo = safeUrl(branding.logo_url);
   const brandName = branding.brand_name?.trim() || null;
-  if (!logo && !brandName) return null;
+  const hero = safeUrl(options?.heroImageUrl ?? null);
+  if (!logo && !brandName && !hero) return null;
 
   const color = safeColor(branding.brand_color);
   const safeBrand = brandName ? escapeHtml(brandName) : '';
+  const heroAlt = options?.heroAlt?.trim() || safeBrand || '';
   const bodyHtml = renderBodyHtml(text, color);
   const year = new Date().getFullYear();
 
   const header = logo
     ? `<img src="${escapeHtml(logo)}" alt="${safeBrand}" width="180" style="display:block;max-height:64px;max-width:220px;width:auto;height:auto;border:0;outline:none;text-decoration:none;" />`
     : `<span style="font-size:18px;font-weight:600;color:${color};">${safeBrand}</span>`;
+
+  // Hero image: full-width, block-level, no fixed height — mail clients
+  // scale by width and the aspect ratio follows the file.
+  const heroBlock = hero
+    ? `<tr>
+             <td style="padding:0;font-size:0;line-height:0;">
+               <img src="${escapeHtml(hero)}" alt="${escapeHtml(heroAlt)}" width="600" style="display:block;width:100%;max-width:600px;height:auto;border:0;outline:none;text-decoration:none;" />
+             </td>
+           </tr>`
+    : '';
 
   const footer = safeBrand
     ? `<tr><td style="padding:16px 28px;border-top:1px solid #e5e7eb;font-size:12px;line-height:1.5;color:#6b7280;text-align:center;">
@@ -133,6 +152,7 @@ export function buildBrandedHtml(
               ${header}
             </td>
           </tr>
+          ${heroBlock}
           <tr>
             <td style="padding:16px 28px 28px 28px;">
               <div style="font-size:15px;line-height:1.65;color:#111827;white-space:pre-wrap;">${bodyHtml}</div>

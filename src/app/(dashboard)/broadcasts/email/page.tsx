@@ -16,18 +16,20 @@
  * stay under the 60 req/min bucket while keeping the UI responsive.
  */
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import {
   ArrowLeft,
   CheckCircle2,
+  ImagePlus,
   Link2,
   Loader2,
   Mail,
   Search,
   Send,
+  Trash2,
   Users,
 } from 'lucide-react';
 
@@ -45,6 +47,10 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { personalizeBody, personalizeSubject } from '@/lib/email/personalize';
+import {
+  MEDIA_MAX_BYTES_BY_KIND,
+  uploadAccountMedia,
+} from '@/lib/storage/upload-media';
 import type { MessageTemplate } from '@/types';
 
 const BATCH_SIZE = 10;
@@ -90,6 +96,14 @@ export default function EmailBroadcastPage() {
   const [subject, setSubject] = useState('');
   const [senderName, setSenderName] = useState('');
 
+  // Campaign header image. Uploaded to the account-scoped chat-media
+  // bucket and rendered above the body in the branded HTML shell, so the
+  // image is part of the campaign and not of the template: two campaigns
+  // can reuse one template with different pictures.
+  const [headerImageUrl, setHeaderImageUrl] = useState('');
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
@@ -134,6 +148,7 @@ export default function EmailBroadcastPage() {
         if (first) {
           setTemplateId((prev) => prev || first.id);
           setSubject((prev) => prev || first.name);
+          setHeaderImageUrl((prev) => prev || first.header_media_url || '');
         }
       } catch (err) {
         if (cancelled) return;
@@ -212,6 +227,36 @@ export default function EmailBroadcastPage() {
 
   function clearSelection() {
     setSelected(new Set());
+  }
+
+  /**
+   * Header-image upload. Images are capped at Meta's 5 MB image ceiling
+   * (the shared `MEDIA_MAX_BYTES_BY_KIND.image`), which is also a sane
+   * mail-client weight — larger files get clipped by Gmail rather than
+   * displayed.
+   */
+  async function handleImageFile(file: File) {
+    if (!file.type.startsWith('image/')) {
+      toast.error(t('imageWrongType'));
+      return;
+    }
+    if (file.size > MEDIA_MAX_BYTES_BY_KIND.image) {
+      toast.error(
+        t('imageTooLarge', { max: Math.round(MEDIA_MAX_BYTES_BY_KIND.image / 1024 / 1024) }),
+      );
+      return;
+    }
+    setUploadingImage(true);
+    try {
+      const { publicUrl } = await uploadAccountMedia('chat-media', file);
+      setHeaderImageUrl(publicUrl);
+      toast.success(t('imageUploaded'));
+    } catch (err) {
+      console.error('[email-broadcast] image upload failed:', err);
+      toast.error(err instanceof Error ? err.message : t('imageUploadFailed'));
+    } finally {
+      setUploadingImage(false);
+    }
   }
 
   async function handleSend() {
@@ -300,6 +345,7 @@ export default function EmailBroadcastPage() {
               subject: finalSubject,
               text: template.body_text,
               fromName: senderName.trim() || undefined,
+              headerImageUrl: headerImageUrl || undefined,
               personalize: {
                 amount: amount.trim(),
                 link: trimmedLink || undefined,
@@ -437,6 +483,10 @@ export default function EmailBroadcastPage() {
                           if (!subject.trim() || subject === template?.name) {
                             setSubject(tpl.name);
                           }
+                          // A template that already carries a header image
+                          // (set in Settings → Templates) seeds the
+                          // campaign image; it stays editable here.
+                          setHeaderImageUrl(tpl.header_media_url ?? '');
                         }}
                         className={`w-full rounded-lg border px-3 py-2.5 text-left transition-colors ${
                           active
@@ -530,6 +580,61 @@ export default function EmailBroadcastPage() {
                   />
                   <p className="text-xs text-muted-foreground">{t('linkHint')}</p>
                 </div>
+
+                {/* Image d'en-tête — téléversée ici, pas dans le modèle */}
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-1.5 text-muted-foreground">
+                    <ImagePlus className="size-3.5" />
+                    {t('image')}
+                  </Label>
+                  <input
+                    ref={imageInputRef}
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/gif"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) void handleImageFile(file);
+                      e.target.value = '';
+                    }}
+                  />
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={uploadingImage}
+                      onClick={() => imageInputRef.current?.click()}
+                    >
+                      {uploadingImage ? (
+                        <Loader2 className="mr-1.5 size-3.5 animate-spin" />
+                      ) : (
+                        <ImagePlus className="mr-1.5 size-3.5" />
+                      )}
+                      {headerImageUrl ? t('imageReplace') : t('imageUpload')}
+                    </Button>
+                    {headerImageUrl && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setHeaderImageUrl('')}
+                      >
+                        <Trash2 className="mr-1.5 size-3.5" />
+                        {t('imageRemove')}
+                      </Button>
+                    )}
+                  </div>
+                  {headerImageUrl && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={headerImageUrl}
+                      alt={t('imagePreviewAlt')}
+                      className="max-h-32 rounded-md border border-border object-contain"
+                    />
+                  )}
+                  <p className="text-xs text-muted-foreground">{t('imageHint')}</p>
+                </div>
               </CardContent>
             </Card>
 
@@ -616,6 +721,14 @@ export default function EmailBroadcastPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
+                {headerImageUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={headerImageUrl}
+                    alt={t('imagePreviewAlt')}
+                    className="w-full rounded-md border border-border object-cover"
+                  />
+                )}
                 <div>
                   <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
                     {t('subjectLabel')}

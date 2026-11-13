@@ -217,6 +217,18 @@ export function Step1ChooseTemplate({
         </Select>
       </div>
 
+      <p className="text-xs text-muted-foreground">
+        {t('chooseTemplate.headerImageHint')}{' '}
+        <a
+          href="/settings?tab=templates"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-medium text-primary underline underline-offset-2"
+        >
+          {t('chooseTemplate.headerImageLink')}
+        </a>
+      </p>
+
       {visibleTemplates.length === 0 ? (
         <div className="flex h-48 flex-col items-center justify-center rounded-xl border border-border bg-card/50">
           <FileText className="mb-2 h-8 w-8 text-muted-foreground" />
@@ -270,6 +282,18 @@ export function Step1ChooseTemplate({
                     )}
                   </div>
                 </div>
+                {template.header_type === 'image' && template.header_media_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={template.header_media_url}
+                    alt={template.name}
+                    className="h-24 w-full rounded-md border border-border object-cover"
+                  />
+                ) : template.header_type === 'text' && template.header_content ? (
+                  <p className="line-clamp-1 text-xs font-medium text-foreground">
+                    {template.header_content}
+                  </p>
+                ) : null}
                 <p className="line-clamp-3 text-xs text-muted-foreground">{template.body_text}</p>
                 <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
                   {template.isStarter && (

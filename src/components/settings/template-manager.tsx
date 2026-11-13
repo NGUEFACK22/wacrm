@@ -8,6 +8,7 @@ import {
   Loader2,
   RefreshCw,
   AlertCircle,
+  FileText,
   X,
   Pencil,
   RotateCcw,
@@ -290,13 +291,15 @@ export function TemplateManager() {
       // immediately should not show a stale list.
       if (accountId) await fetchTemplates(accountId);
       toast.success(
-        data.dry_run
-          ? isEdit
-            ? t('toastSaveEditDry')
-            : t('toastSaveNewDry')
-          : isEdit
-            ? t('toastSubmitEditSuccess')
-            : t('toastSubmitNewSuccess'),
+        data.local
+          ? t('toastSavedLocal')
+          : data.dry_run
+            ? isEdit
+              ? t('toastSaveEditDry')
+              : t('toastSaveNewDry')
+            : isEdit
+              ? t('toastSubmitEditSuccess')
+              : t('toastSubmitNewSuccess'),
       );
       setDialogOpen(false);
       setForm(emptyForm);
@@ -687,6 +690,13 @@ export function TemplateManager() {
                 : t('dialogNewDesc')}
             </DialogDescription>
           </DialogHeader>
+
+          {editingTemplate && !editingTemplate.meta_template_id && (
+            <div className="flex items-start gap-2 rounded border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+              <FileText className="size-4 mt-0.5 shrink-0" />
+              <p>{t('localEditNotice')}</p>
+            </div>
+          )}
 
           {form.category === 'Authentication' && (
             <div className="flex items-start gap-2 rounded border border-amber-700/40 bg-amber-950/30 px-3 py-2 text-xs text-amber-300">

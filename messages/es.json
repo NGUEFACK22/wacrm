@@ -1014,7 +1014,9 @@
         "languages": {
           "fr": "Francés",
           "en": "Inglés"
-        }
+        },
+        "headerImageHint": "Para poner una imagen en la cabecera de una plantilla, edítala en Ajustes → Plantillas.",
+        "headerImageLink": "Abrir plantillas"
       },
       "selectAudience": {
         "title": "Seleccionar audiencia",
@@ -1211,7 +1213,17 @@
       "sendFailed": "Error al enviar",
       "doneAll": "{count, plural, one {# correo enviado} other {# correos enviados}}",
       "doneNone": "Nada enviado — {count, plural, one {# error} other {# errores}}",
-      "donePartial": "{sent} enviados, {failed} fallidos"
+      "donePartial": "{sent} enviados, {failed} fallidos",
+      "image": "Imagen de cabecera (opcional)",
+      "imageUpload": "Añadir una imagen",
+      "imageReplace": "Cambiar la imagen",
+      "imageRemove": "Quitar",
+      "imageHint": "Se muestra sobre el mensaje en cada correo de esta difusión. PNG, JPEG, WebP o GIF, 5 MB máximo.",
+      "imagePreviewAlt": "Imagen de cabecera de la difusión",
+      "imageWrongType": "Elige un archivo de imagen (PNG, JPEG, WebP o GIF).",
+      "imageTooLarge": "Imagen demasiado grande — {max} MB máximo.",
+      "imageUploaded": "Imagen subida",
+      "imageUploadFailed": "Error al subir"
     }
   },
   "Automations": {
@@ -1952,7 +1964,9 @@
         "Marketing": "Marketing",
         "Utility": "Utilidad",
         "Authentication": "Autenticación"
-      }
+      },
+      "toastSavedLocal": "Plantilla guardada localmente",
+      "localEditNotice": "Plantilla integrada / local — se guarda directamente, sin revisión de Meta."
     },
     "roles": {
       "admin": "Administrador",

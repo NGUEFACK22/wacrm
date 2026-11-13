@@ -1014,7 +1014,9 @@
         "languages": {
           "fr": "French",
           "en": "English"
-        }
+        },
+        "headerImageHint": "To put an image in a template header, edit the template in Settings → Templates.",
+        "headerImageLink": "Open templates"
       },
       "selectAudience": {
         "title": "Select Audience",
@@ -1211,7 +1213,17 @@
       "sendFailed": "Send failed",
       "doneAll": "{count, plural, one {# email sent} other {# emails sent}}",
       "doneNone": "Nothing sent — {count, plural, one {# error} other {# errors}}",
-      "donePartial": "{sent} sent, {failed} failed"
+      "donePartial": "{sent} sent, {failed} failed",
+      "image": "Header image (optional)",
+      "imageUpload": "Add an image",
+      "imageReplace": "Replace image",
+      "imageRemove": "Remove",
+      "imageHint": "Shown above the message in every email of this campaign. PNG, JPEG, WebP or GIF, 5 MB max.",
+      "imagePreviewAlt": "Campaign header image",
+      "imageWrongType": "Pick an image file (PNG, JPEG, WebP or GIF).",
+      "imageTooLarge": "Image too large — {max} MB max.",
+      "imageUploaded": "Image uploaded",
+      "imageUploadFailed": "Upload failed"
     }
   },
   "Automations": {
@@ -1952,7 +1964,9 @@
         "Marketing": "Marketing",
         "Utility": "Utility",
         "Authentication": "Authentication"
-      }
+      },
+      "toastSavedLocal": "Template saved locally",
+      "localEditNotice": "Built-in / local template — saved directly, without a Meta review."
     },
     "roles": {
       "admin": "Admin",

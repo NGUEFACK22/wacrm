@@ -1014,7 +1014,9 @@
         "languages": {
           "fr": "프랑스어",
           "en": "영어"
-        }
+        },
+        "headerImageHint": "템플릿 헤더에 이미지를 넣으려면 설정 → 템플릿에서 편집하세요.",
+        "headerImageLink": "템플릿 열기"
       },
       "selectAudience": {
         "title": "대상 선택",
@@ -1211,7 +1213,17 @@
       "sendFailed": "발송 실패",
       "doneAll": "{count, plural, other {#통의 이메일을 보냈습니다}}",
       "doneNone": "보낸 것이 없습니다 — {count, plural, other {#건 오류}}",
-      "donePartial": "{sent}건 성공, {failed}건 실패"
+      "donePartial": "{sent}건 성공, {failed}건 실패",
+      "image": "헤더 이미지 (선택)",
+      "imageUpload": "이미지 추가",
+      "imageReplace": "이미지 교체",
+      "imageRemove": "제거",
+      "imageHint": "이 캠페인의 모든 이메일에서 메시지 위에 표시됩니다. PNG, JPEG, WebP 또는 GIF, 최대 5MB.",
+      "imagePreviewAlt": "캠페인 헤더 이미지",
+      "imageWrongType": "이미지 파일을 선택하세요 (PNG, JPEG, WebP 또는 GIF).",
+      "imageTooLarge": "이미지가 너무 큽니다 — 최대 {max}MB.",
+      "imageUploaded": "이미지를 업로드했습니다",
+      "imageUploadFailed": "업로드 실패"
     }
   },
   "Automations": {
@@ -1952,7 +1964,9 @@
         "Marketing": "마케팅",
         "Utility": "유틸리티",
         "Authentication": "인증"
-      }
+      },
+      "toastSavedLocal": "템플릿을 로컬에 저장했습니다",
+      "localEditNotice": "내장/로컬 템플릿 — Meta 검토 없이 바로 저장됩니다."
     },
     "roles": {
       "admin": "관리자",
