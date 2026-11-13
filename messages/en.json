@@ -1009,6 +1009,11 @@
           "agency": "Agency",
           "b2b": "B2B / Consulting",
           "realestate": "Real estate"
+        },
+        "allLanguages": "All languages",
+        "languages": {
+          "fr": "French",
+          "en": "English"
         }
       },
       "selectAudience": {

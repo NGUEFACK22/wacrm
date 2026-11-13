@@ -48,6 +48,15 @@ describe('personalizeBody', () => {
     expect(out).toContain('Bonjour Franck,')
   })
 
+  it('personalises the uppercase French email greeting', () => {
+    const out = personalizeBody('CHER CLIENT,\n\nVOUS AVEZ REÇU UN DÉPÔT DE {{2}}.', {
+      name: 'Franck Nguefack',
+      amount: '1 200,00 €',
+    })
+    expect(out).toContain('CHER Franck Nguefack,')
+    expect(out).toContain('DÉPÔT DE 1 200,00 €')
+  })
+
   it('appends the campaign link once, on its own line', () => {
     const out = personalizeBody(BODY, {
       name: 'Sam',

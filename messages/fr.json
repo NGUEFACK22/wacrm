@@ -1009,7 +1009,12 @@
           "b2b": "B2B / Conseil",
           "realestate": "Immobilier"
         },
-        "noTemplatesForChannel": "No templates tagged for the {channel} channel. Create one in Settings or switch channel in step 4."
+        "noTemplatesForChannel": "No templates tagged for the {channel} channel. Create one in Settings or switch channel in step 4.",
+        "allLanguages": "Toutes les langues",
+        "languages": {
+          "fr": "Français",
+          "en": "Anglais"
+        }
       },
       "selectAudience": {
         "title": "Sélectionner Unudience",

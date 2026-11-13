@@ -68,6 +68,9 @@ function categoryColor(category: string): string {
 
 export type BroadcastChannel = 'whatsapp' | 'email';
 
+/** Language narrowing for the catalogue. `all` keeps every locale. */
+export type LanguageFilter = 'all' | 'fr' | 'en';
+
 interface Step1Props {
   selectedTemplate: WizardTemplate | null;
   onSelect: (template: WizardTemplate) => void;
@@ -107,6 +110,7 @@ export function Step1ChooseTemplate({
   const [templates, setTemplates] = useState<WizardTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [language, setLanguage] = useState<LanguageFilter>('all');
 
   useEffect(() => {
     async function fetchTemplates() {
@@ -142,8 +146,16 @@ export function Step1ChooseTemplate({
     // channel. Legacy templates (no channel column) default to
     // 'whatsapp', so they show only in WhatsApp mode.
     list = list.filter((tpl) => (tpl.channel ?? 'whatsapp') === channel);
+    // Language narrowing — the catalogue ships an English and a French
+    // variant of every starter, so this is the fastest way to surface
+    // the French set. Rows without a language count as English.
+    if (language !== 'all') {
+      list = list.filter((tpl) =>
+        (tpl.language ?? 'en').toLowerCase().startsWith(language),
+      );
+    }
     return list;
-  }, [templates, industry, channel]);
+  }, [templates, industry, channel, language]);
 
   if (loading) {
     return (
@@ -170,8 +182,8 @@ export function Step1ChooseTemplate({
         </p>
       </div>
 
-      {/* Industry filter */}
-      <div className="flex items-center gap-2">
+      {/* Industry + language filters */}
+      <div className="flex flex-wrap items-center gap-2">
         <FileText className="h-4 w-4 text-muted-foreground" />
         <Select
           value={industry ?? 'all'}
@@ -187,6 +199,20 @@ export function Step1ChooseTemplate({
                 {t(`chooseTemplate.industries.${ind}`)}
               </SelectItem>
             ))}
+          </SelectContent>
+        </Select>
+
+        <Select
+          value={language}
+          onValueChange={(v) => setLanguage(v as LanguageFilter)}
+        >
+          <SelectTrigger className="w-40 border-border bg-muted text-foreground">
+            <SelectValue placeholder={t('chooseTemplate.allLanguages')} />
+          </SelectTrigger>
+          <SelectContent className="border-border bg-popover">
+            <SelectItem value="all">{t('chooseTemplate.allLanguages')}</SelectItem>
+            <SelectItem value="fr">{t('chooseTemplate.languages.fr')}</SelectItem>
+            <SelectItem value="en">{t('chooseTemplate.languages.en')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
