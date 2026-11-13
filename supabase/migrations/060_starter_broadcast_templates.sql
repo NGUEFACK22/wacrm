@@ -86,6 +86,19 @@ BEGIN
     WHERE account_id = p_account_id AND name = 'payment_notification' AND language = 'en_US');
   IF FOUND THEN v_seeded := v_seeded + 1; END IF;
 
+  -- French variant (WhatsApp channel)
+  INSERT INTO public.message_templates
+    (user_id, account_id, name, category, language, body_text,
+     sample_values, status, meta_template_id, is_built_in, industry, channel)
+  SELECT p_user_id, p_account_id, 'payment_notification_fr', 'Utility', 'fr_FR',
+    E'Bonjour {{1}},\n\nNous vous informons qu''un paiement de {{2}} a été crédité sur votre compte.\n\nPour confirmer la réception, veuillez vérifier votre boîte de réception principale et, le cas échéant, votre dossier Spam. Si vous avez la moindre question, répondez simplement à ce message et notre équipe vous répondra.\n\nMerci pour votre confiance.',
+    '{"body": ["Sarah", "1 200,00 €"]}'::jsonb,
+    'APPROVED', NULL, true, 'general', 'whatsapp'
+  WHERE NOT EXISTS (
+    SELECT 1 FROM public.message_templates
+    WHERE account_id = p_account_id AND name = 'payment_notification_fr' AND language = 'fr_FR');
+  IF FOUND THEN v_seeded := v_seeded + 1; END IF;
+
   -- ── Email channel starter ("verification" style) ──────────────
   INSERT INTO public.message_templates
     (user_id, account_id, name, category, language, body_text,
