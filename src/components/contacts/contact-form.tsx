@@ -321,6 +321,9 @@ export function ContactForm({
               placeholder={t('emailPlaceholder')}
               className="bg-muted border-border text-foreground placeholder:text-muted-foreground"
             />
+            <p className="text-xs text-muted-foreground">
+              {t('emailOptionalHint')}
+            </p>
           </div>
 
           <div className="space-y-2">
@@ -334,6 +337,45 @@ export function ContactForm({
               placeholder={t('companyPlaceholder')}
               className="bg-muted border-border text-foreground placeholder:text-muted-foreground"
             />
+            <p className="text-xs text-muted-foreground">{t('companyHint')}</p>
+          </div>
+
+          {/* Company type — pick a tag to narrow broadcasts by industry. */}
+          <div className="space-y-2">
+            <Label className="text-muted-foreground">{t('companyTypeLabel')}</Label>
+            {loadingTags ? (
+              <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                <Loader2 className="size-3 animate-spin" />
+                {t('loadingTags')}
+              </div>
+            ) : tags.length === 0 ? (
+              <p className="text-xs text-muted-foreground">{t('noTagsAvailable')}</p>
+            ) : (
+              <div className="flex flex-wrap gap-1.5">
+                {tags.map((tag) => {
+                  const selected = selectedTagIds.includes(tag.id);
+                  return (
+                    <button
+                      key={tag.id}
+                      type="button"
+                      onClick={() => toggleTag(tag.id)}
+                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors cursor-pointer ${
+                        selected
+                          ? 'ring-2 ring-primary ring-offset-1 ring-offset-border'
+                          : 'opacity-60 hover:opacity-100'
+                      }`}
+                      style={{
+                        backgroundColor: tag.color + '20',
+                        color: tag.color,
+                        borderColor: tag.color,
+                      }}
+                    >
+                      {tag.name}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">

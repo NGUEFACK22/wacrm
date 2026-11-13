@@ -145,6 +145,31 @@ export async function resolveAudienceContacts(
   return fetchContactsByIds(db, wanted);
 }
 
+/**
+ * Build a `mailto:` link that opens the user's default mail client with
+ * pre-filled recipients (from the audience's email addresses), a subject
+ * and a body rendered from the chosen template + variable mapping.
+ *
+ * This is intentionally transport-free: no SMTP, no API key, no cost —
+ * the mail client does the actual delivery. For accounts that want a
+ * fully server-side path later, this function's output is the contract.
+ */
+export function buildMailtoLink(recipients: { address: string; name?: string | null }[], subject: string, body: string): string {
+  // `mailto:` with multiple recipients. Each recipient is a separate address in
+  // the `to` field, comma-separated (RFC 6068). Names are optional, so only
+  // include them when present. Body is percent-encoded, but keep newlines as
+  // \n (most mail clients accept them).
+  const to = recipients.map((r) => (r.name ? `${r.name} <${r.address}>` : r.address)).join(',');
+  const params = new URLSearchParams();
+  params.set('subject', subject);
+  params.set('body', body);
+  return `mailto:${to}?${params.toString()}`;
+}
+
+export function countWithEmail<T extends { email?: string | null }>(contacts: T[]): number {
+  return contacts.filter((c) => c.email?.trim()).length;
+}
+
 export async function countAudience(
   db: SupabaseClient,
   audience: AudienceConfig,

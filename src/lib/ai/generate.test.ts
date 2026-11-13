@@ -308,3 +308,78 @@ describe('generateReply — OpenAI-compatible', () => {
     expect(fetchMock.mock.calls[0][1].redirect).toBe('manual')
   })
 })
+
+describe('generateReply — Gemini', () => {
+  it('calls the generateContent endpoint with the x-goog-api-key header and parses candidates', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      okResponse({
+        candidates: [{ content: { parts: [{ text: 'Hello from Gemini!' }] } }],
+        usageMetadata: {
+          promptTokenCount: 20,
+          candidatesTokenCount: 4,
+          totalTokenCount: 24,
+        },
+      }),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+
+    const res = await generateReply({
+      config: config({ provider: 'gemini', model: 'gemini-3.5-flash', apiKey: 'AIza-test' }),
+      systemPrompt: 'sys',
+      messages: [
+        { role: 'assistant', content: 'Hi, how can I help?' },
+        { role: 'user', content: 'Hello' },
+      ],
+    })
+
+    expect(res).toEqual({
+      text: 'Hello from Gemini!',
+      handoff: false,
+      usage: { promptTokens: 20, completionTokens: 4, totalTokens: 24 },
+    })
+    const [url, opts] = fetchMock.mock.calls[0]
+    expect(url).toContain('generativelanguage.googleapis.com')
+    expect(url).toContain('gemini-3.5-flash')
+    expect(url).toContain(':generateContent')
+    expect(opts.headers['x-goog-api-key']).toBe('AIza-test')
+
+    // The assistant turn must be mapped to Gemini's "model" role and the
+    // system prompt must ride in systemInstruction, not as a contents turn.
+    const body = JSON.parse(opts.body)
+    expect(body.contents[0].role).toBe('model')
+    expect(body.contents[1].role).toBe('user')
+    expect(body.systemInstruction.parts[0].text).toBe('sys')
+    expect(body.generationConfig.maxOutputTokens).toBe(1024)
+  })
+
+  it('maps a 401 to an invalid_key AiError', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        errResponse(401, { error: { message: 'API key not valid. Please pass a valid API key.' } }),
+      ),
+    )
+
+    await expect(
+      generateReply({
+        config: config({ provider: 'gemini' }),
+        systemPrompt: 'sys',
+        messages: [{ role: 'user', content: 'Hi' }],
+      }),
+    ).rejects.toMatchObject({ code: 'invalid_key', status: 401 })
+  })
+
+  it('throws on an empty candidate', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(okResponse({ candidates: [{ content: { parts: [] } }] })),
+    )
+    await expect(
+      generateReply({
+        config: config({ provider: 'gemini' }),
+        systemPrompt: 'sys',
+        messages: [{ role: 'user', content: 'Hi' }],
+      }),
+    ).rejects.toBeInstanceOf(AiError)
+  })
+})

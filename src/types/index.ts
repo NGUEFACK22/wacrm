@@ -367,6 +367,25 @@ export interface MessageTemplate {
   quality_score?: 'GREEN' | 'YELLOW' | 'RED';
   submission_error?: string;
   last_submitted_at?: string;
+  /**
+   * Built-in starter template (migration 060) — locally authored,
+   * never submitted to Meta. `meta_template_id` stays null and the
+   * row is `APPROVED` locally so the broadcast wizard can offer it
+   * without a Meta round-trip.
+   */
+  is_built_in?: boolean;
+  /** Industry grouping for starter templates: `general`, `saas`,
+   *  `ecommerce`, `health`, `fitness`, `education`, `restaurant`,
+   *  `agency`, `b2b`, `realestate`. */
+  industry?: string | null;
+  /**
+   * Intended send channel for the template. `whatsapp` templates are
+   * clean and Meta-approvable; `email` templates can be "verification"
+   * style that would be flagged by Meta. The wizard filters by this
+   * so the user only sees the catalog relevant to the channel they
+   * picked in step 4.
+   */
+  channel?: 'whatsapp' | 'email';
   created_at: string;
 }
 

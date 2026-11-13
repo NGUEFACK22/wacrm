@@ -35,6 +35,8 @@ import {
   Trash2,
   PlayCircle,
   RotateCcw,
+  Mail,
+  Smartphone,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -340,6 +342,9 @@ export default function BroadcastDetailPage() {
     { label: t('stats.replied'), value: broadcast.replied_count, color: 'bg-indigo-500' },
   ];
 
+  /** Email broadcasts are not tracked server-side (no delivery receipts). */
+  const isEmail = broadcast.audience_filter?.channel === 'email';
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -364,6 +369,26 @@ export default function BroadcastDetailPage() {
             </div>
             <div className="mt-1 flex items-center gap-3 text-sm text-muted-foreground">
               <span>{t('template', { name: broadcast.template_name })}</span>
+              <span>-</span>
+              <span
+                className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${
+                  broadcast.audience_filter?.channel === 'email'
+                    ? 'border-amber-500/20 bg-amber-500/10 text-amber-400'
+                    : 'border-blue-500/20 bg-blue-500/10 text-blue-400'
+                }`}
+              >
+                {broadcast.audience_filter?.channel === 'email' ? (
+                  <>
+                    <Mail className="h-2.5 w-2.5 mr-1" />
+                    {t('channel.email')}
+                  </>
+                ) : (
+                  <>
+                    <Smartphone className="h-2.5 w-2.5 mr-1" />
+                    {t('channel.whatsapp')}
+                  </>
+                )}
+              </span>
               <span>-</span>
               <span>
                 {t('createdAt', { date: new Date(broadcast.created_at).toLocaleDateString() })}
@@ -465,7 +490,8 @@ export default function BroadcastDetailPage() {
         </div>
       )}
 
-      {/* Stats — 6 cards: Total / Sent / Delivered / Read / Replied / Failed */}
+      {/* Stats — email broadcasts are not tracked server-side (no delivery
+          receipts), so Delivered / Read / Replied / Failed are hidden. */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         <StatCard
           label={t('stats.totalRecipients')}
@@ -475,40 +501,50 @@ export default function BroadcastDetailPage() {
           color="bg-muted text-muted-foreground"
         />
         <StatCard
-          label={t('stats.sent')}
-          value={broadcast.sent_count}
+          label={isEmail ? t('stats.emailRecipientCount') : t('stats.sent')}
+          value={isEmail ? broadcast.sent_count : broadcast.sent_count}
           total={broadcast.total_recipients}
-          icon={<Send className="h-4 w-4" />}
-          color="bg-primary/10 text-primary"
+          icon={
+            isEmail ? (
+              <Mail className="h-4 w-4" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )
+          }
+          color={isEmail ? 'bg-amber-500/10 text-amber-400' : 'bg-primary/10 text-primary'}
         />
-        <StatCard
-          label={t('stats.delivered')}
-          value={broadcast.delivered_count}
-          total={broadcast.total_recipients}
-          icon={<CheckCheck className="h-4 w-4" />}
-          color="bg-teal-500/10 text-teal-400"
-        />
-        <StatCard
-          label={t('stats.read')}
-          value={broadcast.read_count}
-          total={broadcast.total_recipients}
-          icon={<Eye className="h-4 w-4" />}
-          color="bg-blue-500/10 text-blue-400"
-        />
-        <StatCard
-          label={t('stats.replied')}
-          value={broadcast.replied_count}
-          total={broadcast.total_recipients}
-          icon={<MessageCircle className="h-4 w-4" />}
-          color="bg-indigo-500/10 text-indigo-400"
-        />
-        <StatCard
-          label={t('stats.failed')}
-          value={broadcast.failed_count}
-          total={broadcast.total_recipients}
-          icon={<AlertCircle className="h-4 w-4" />}
-          color="bg-red-500/10 text-red-400"
-        />
+        {!isEmail && (
+          <>
+            <StatCard
+              label={t('stats.delivered')}
+              value={broadcast.delivered_count}
+              total={broadcast.total_recipients}
+              icon={<CheckCheck className="h-4 w-4" />}
+              color="bg-teal-500/10 text-teal-400"
+            />
+            <StatCard
+              label={t('stats.read')}
+              value={broadcast.read_count}
+              total={broadcast.total_recipients}
+              icon={<Eye className="h-4 w-4" />}
+              color="bg-blue-500/10 text-blue-400"
+            />
+            <StatCard
+              label={t('stats.replied')}
+              value={broadcast.replied_count}
+              total={broadcast.total_recipients}
+              icon={<MessageCircle className="h-4 w-4" />}
+              color="bg-indigo-500/10 text-indigo-400"
+            />
+            <StatCard
+              label={t('stats.failed')}
+              value={broadcast.failed_count}
+              total={broadcast.total_recipients}
+              icon={<AlertCircle className="h-4 w-4" />}
+              color="bg-red-500/10 text-red-400"
+            />
+          </>
+        )}
       </div>
 
       <FunnelChart steps={funnelSteps} />

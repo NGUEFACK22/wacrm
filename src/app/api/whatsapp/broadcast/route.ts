@@ -163,6 +163,22 @@ export async function POST(request: Request) {
     }
     const templateRow = resolvedTemplate.row
 
+    // Built-in starter templates (is_built_in = true, no Meta
+    // counterpart) have no local meta_template_id and Meta has never
+    // seen them — they cannot be sent via Meta's template endpoint.
+    // Detect them early so the caller gets a specific error instead
+    // of 400s from Meta for every recipient.
+    if (templateRow?.is_built_in && !templateRow.meta_template_id) {
+      return NextResponse.json(
+        {
+          error:
+            t('broadcast.starterTemplateNotMeta'),
+          starter_template: true,
+        },
+        { status: 400 },
+      )
+    }
+
     const results: BroadcastResult[] = []
     let sentCount = 0
     let failedCount = 0

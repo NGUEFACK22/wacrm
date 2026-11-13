@@ -33,7 +33,7 @@ clone or fork it to run your own CRM.
 - **No-code automations** — triggers on inbound messages, new
   contacts, keywords, or schedule; conditional branches, waits,
   tags, webhooks. Visual builder.
-- **AI reply assistant** — bring your own OpenAI or Anthropic key
+- **AI reply assistant** — bring your own OpenAI, Anthropic, or Google Gemini key
   (stored encrypted; no per-seat AI fee, your data stays yours).
   One-click AI-drafted replies in the inbox, plus an optional
   auto-reply bot with a per-conversation cap and clean human handoff.
@@ -91,7 +91,7 @@ Open <http://localhost:3000>. You'll be redirected to `/login` (or
 `/dashboard` if already signed in).
 
 The UI ships in English, Korean, Brazilian Portuguese and Spanish — set
-`NEXT_PUBLIC_APP_LOCALE` to `en`, `ko`, `pt` or `es` in `.env.local`
+`NEXT_PUBLIC_APP_LOCALE` to `en`, `ko`, `pt`, `es` or `fr` in `.env.local`
 (catalogues live in `messages/`).
 
 Prefer containers? See [docs/docker.md](./docs/docker.md) for the
@@ -166,6 +166,8 @@ Key pages:
 - [Auth emails](./docs/auth-emails.md) — what Supabase must allow so
   confirmation and password-reset links come back to *your* domain
   instead of `localhost:3000`, and how `/auth/callback` handles them
+- [Supabase Free plan](./docs/supabase-free.md) — what's included,
+  setup steps, and the limits to watch on the free tier
 
 ## Stack
 

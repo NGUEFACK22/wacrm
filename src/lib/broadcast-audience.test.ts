@@ -2,7 +2,9 @@ import { describe, it, expect } from 'vitest';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 import {
+  buildMailtoLink,
   countAudience,
+  countWithEmail,
   resolveAudienceContacts,
   type AudienceConfig,
 } from './broadcast-audience';
@@ -378,5 +380,64 @@ describe('countAudience', () => {
       }),
     ).toBeNull();
     expect(await countAudience(db, { type: 'csv' })).toBeNull();
+  });
+});
+
+describe('buildMailtoLink', () => {
+  it('encodes multiple recipients, subject and body', () => {
+    const link = buildMailtoLink(
+      [
+        { address: 'alice@example.com', name: 'Alice' },
+        { address: 'bob@example.com' },
+      ],
+      'Promo d\'été',
+      'Bonjour {{1}},\n\nBienvenue chez {{2}}.',
+    );
+    expect(link).toMatch(/^mailto:/);
+    expect(link).toContain('alice@example.com');
+    expect(link).toContain('bob@example.com');
+    const subjectMatch = link.match(/[?&]subject=([^&]*)/);
+    expect(subjectMatch).toBeTruthy();
+    // URLSearchParams encodes spaces as '+', which decodeURIComponent
+    // does not turn back into a space — normalize first.
+    expect(decodeURIComponent(subjectMatch![1].replace(/\+/g, ' '))).toBe(
+      "Promo d'été",
+    );
+    const bodyMatch = link.match(/[?&]body=([^&]*)/);
+    expect(bodyMatch).toBeTruthy();
+    expect(decodeURIComponent(bodyMatch![1].replace(/\+/g, ' '))).toBe(
+      'Bonjour {{1}},\n\nBienvenue chez {{2}}.',
+    );
+  });
+
+  it('omits names when not provided', () => {
+    const link = buildMailtoLink(
+      [{ address: 'alice@example.com' }],
+      'Hi',
+      'body',
+    );
+    expect(link).toBe('mailto:alice@example.com?subject=Hi&body=body');
+  });
+
+  it('handles empty recipient list gracefully', () => {
+    const link = buildMailtoLink([], 'No one', 'empty');
+    expect(link).toBe('mailto:?subject=No+one&body=empty');
+  });
+});
+
+describe('countWithEmail', () => {
+  it('counts only contacts with a non-empty email', () => {
+    const contacts = [
+      { id: '1', email: 'a@example.com' },
+      { id: '2', email: '' },
+      { id: '3', email: null },
+      { id: '4' },
+      { id: '5', email: 'b@example.com' },
+    ] as unknown as { email?: string | null }[];
+    expect(countWithEmail(contacts)).toBe(2);
+  });
+
+  it('returns 0 for an empty list', () => {
+    expect(countWithEmail([])).toBe(0);
   });
 });

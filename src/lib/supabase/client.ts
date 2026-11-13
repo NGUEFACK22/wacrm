@@ -11,7 +11,12 @@ export function createClient() {
 
   browserClient = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    // Prefer the new publishable key (sb_publishable_...) issued by
+    // Supabase for new projects; fall back to the legacy JWT anon key
+    // (NEXT_PUBLIC_SUPABASE_ANON_KEY) for older projects. Both are
+    // accepted by the Supabase client SDK.
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
   )
 
   return browserClient

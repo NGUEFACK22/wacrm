@@ -1,28 +1,110 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { MessageTemplate } from '@/types';
 import { Button } from '@/components/ui/button';
-import { Loader2, FileText, ArrowRight } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Loader2, FileText, ArrowRight, Sparkles, Mail } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
-const categoryColors: Record<string, string> = {
-  Marketing: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
-  Utility: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-  Authentication: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
-};
+/**
+ * Every industry a starter template can be tagged with. `null` means
+ * "show all".
+ */
+export type IndustryFilter = string | null;
+
+/**
+ * Template selectable in step 1. Wraps the DB row with the flag the
+ * wizard needs to render the "WhatsApp" vs "Starter" badge, and to
+ * gate the email channel (only starter / non-Meta templates can be
+ * reused as plain email bodies without a Meta round-trip).
+ */
+export interface WizardTemplate extends MessageTemplate {
+  /** True when the template was authored locally and is not a Meta row. */
+  isStarter: boolean;
+}
+
+const INDUSTRIES = [
+  'general',
+  'saas',
+  'ecommerce',
+  'health',
+  'fitness',
+  'education',
+  'restaurant',
+  'agency',
+  'b2b',
+  'realestate',
+] as const;
+
+export const INDUSTRY_LABELS: Record<string, string> = {};
+
+function toWizardTemplate(row: MessageTemplate): WizardTemplate {
+  return {
+    ...row,
+    isStarter: row.is_built_in === true,
+  };
+}
+
+function categoryColor(category: string): string {
+  switch (category) {
+    case 'Marketing':
+      return 'bg-purple-500/10 text-purple-400 border-purple-500/20';
+    case 'Utility':
+      return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
+    case 'Authentication':
+      return 'bg-orange-500/10 text-orange-400 border-orange-500/20';
+    default:
+      return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
+  }
+}
+
+export type BroadcastChannel = 'whatsapp' | 'email';
 
 interface Step1Props {
-  selectedTemplate: MessageTemplate | null;
-  onSelect: (template: MessageTemplate) => void;
+  selectedTemplate: WizardTemplate | null;
+  onSelect: (template: WizardTemplate) => void;
+  industry: IndustryFilter;
+  onIndustryChange: (industry: IndustryFilter) => void;
+  /** Channel picked in step 4 — the wizard shows only templates
+   *  whose `channel` matches. Legacy templates without a channel
+   *  are treated as 'whatsapp'. */
+  channel: BroadcastChannel;
   onNext: () => void;
   onBack: () => void;
 }
 
-export function Step1ChooseTemplate({ selectedTemplate, onSelect, onNext, onBack }: Step1Props) {
+/**
+ * Step 1 of the broadcast wizard — pick a template.
+ *
+ * Loads every template in the account and shows them all, but splits
+ * them visually:
+ *   - built-in starters (is_built_in = true, no Meta counterpart) get
+ *     a "Starter" badge and a Sparkles icon; they can be sent on the
+ *     Email channel without a Meta round-trip.
+ *   - Meta-synced rows keep the classic category chip.
+ *
+ * The industry filter (top of the screen) narrows the list to one
+ * company type. `null` shows everything.
+ */
+export function Step1ChooseTemplate({
+  selectedTemplate,
+  onSelect,
+  industry,
+  onIndustryChange,
+  channel,
+  onNext,
+  onBack,
+}: Step1Props) {
   const t = useTranslations('Broadcasts.wizard');
-  const [templates, setTemplates] = useState<MessageTemplate[]>([]);
+  const [templates, setTemplates] = useState<WizardTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -30,17 +112,19 @@ export function Step1ChooseTemplate({ selectedTemplate, onSelect, onNext, onBack
     async function fetchTemplates() {
       try {
         const supabase = createClient();
-        // Only APPROVED templates can be sent via Meta — anything else
-        // would 400 at broadcast time. Hide them rather than letting
-        // the user pick a template that will fail.
+        // Every locally visible template: Meta-synced AND built-in
+        // starters. The wizard's email channel depends on the starters
+        // existing without Meta, so we can no longer filter by
+        // status='APPROVED' alone — a starter row is APPROVED locally
+        // but has no meta_template_id.
         const { data, error: fetchError } = await supabase
           .from('message_templates')
           .select('*')
-          .eq('status', 'APPROVED')
+          .order('is_built_in', { ascending: false })
           .order('created_at', { ascending: false });
 
         if (fetchError) throw fetchError;
-        setTemplates(data ?? []);
+        setTemplates((data ?? []).map(toWizardTemplate));
       } catch (err) {
         setError(err instanceof Error ? err.message : t('chooseTemplate.errorLoad'));
       } finally {
@@ -49,7 +133,17 @@ export function Step1ChooseTemplate({ selectedTemplate, onSelect, onNext, onBack
     }
 
     fetchTemplates();
-  }, []);
+  }, [t]);
+
+  const visibleTemplates = useMemo(() => {
+    let list = templates;
+    if (industry) list = list.filter((tpl) => tpl.industry === industry);
+    // Filter by channel: show only templates tagged for the picked
+    // channel. Legacy templates (no channel column) default to
+    // 'whatsapp', so they show only in WhatsApp mode.
+    list = list.filter((tpl) => (tpl.channel ?? 'whatsapp') === channel);
+    return list;
+  }, [templates, industry, channel]);
 
   if (loading) {
     return (
@@ -76,17 +170,43 @@ export function Step1ChooseTemplate({ selectedTemplate, onSelect, onNext, onBack
         </p>
       </div>
 
-      {templates.length === 0 ? (
+      {/* Industry filter */}
+      <div className="flex items-center gap-2">
+        <FileText className="h-4 w-4 text-muted-foreground" />
+        <Select
+          value={industry ?? 'all'}
+          onValueChange={(v) => onIndustryChange(v === 'all' ? null : v)}
+        >
+          <SelectTrigger className="w-56 border-border bg-muted text-foreground">
+            <SelectValue placeholder={t('chooseTemplate.allIndustries')} />
+          </SelectTrigger>
+          <SelectContent className="border-border bg-popover">
+            <SelectItem value="all">{t('chooseTemplate.allIndustries')}</SelectItem>
+            {INDUSTRIES.map((ind) => (
+              <SelectItem key={ind} value={ind}>
+                {t(`chooseTemplate.industries.${ind}`)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {visibleTemplates.length === 0 ? (
         <div className="flex h-48 flex-col items-center justify-center rounded-xl border border-border bg-card/50">
           <FileText className="mb-2 h-8 w-8 text-muted-foreground" />
           <p className="text-sm text-muted-foreground">{t('chooseTemplate.noTemplates')}</p>
           <p className="mt-1 text-xs text-muted-foreground">{t('chooseTemplate.createFirst')}</p>
+          <p className="mt-2 text-xs text-muted-foreground">
+            {t('chooseTemplate.noTemplatesForChannel', {
+              channel: channel === 'email' ? 'Email' : 'WhatsApp',
+            })}
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {templates.map((template) => {
+          {visibleTemplates.map((template) => {
             const isSelected = selectedTemplate?.id === template.id;
-            const catColor = categoryColors[template.category] ?? categoryColors.Utility;
+            const catColor = categoryColor(template.category);
 
             return (
               <button
@@ -98,20 +218,41 @@ export function Step1ChooseTemplate({ selectedTemplate, onSelect, onNext, onBack
                     : 'border-border bg-card/50 hover:border-border hover:bg-card'
                 }`}
               >
-                <div className="flex items-start justify-between">
+                <div className="flex items-start justify-between gap-2">
                   <h3 className="text-sm font-medium text-foreground">{template.name}</h3>
-                  <span
-                    className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${catColor}`}
-                  >
-                    {template.category}
-                  </span>
+                  <div className="flex items-center gap-1">
+                    <span
+                      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${
+                        (template.channel ?? 'whatsapp') === 'email'
+                          ? 'border-amber-500/20 bg-amber-500/10 text-amber-400'
+                          : 'border-blue-500/20 bg-blue-500/10 text-blue-400'
+                      }`}
+                    >
+                      {(template.channel ?? 'whatsapp') === 'email' ? 'Email' : 'WhatsApp'}
+                    </span>
+                    {template.isStarter ? (
+                      <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/20 bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-400">
+                        <Sparkles className="h-2.5 w-2.5" />
+                        {t('chooseTemplate.builtIn')}
+                      </span>
+                    ) : (
+                      <span
+                        className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${catColor}`}
+                      >
+                        {template.category}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <p className="line-clamp-3 text-xs text-muted-foreground">{template.body_text}</p>
                 <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+                  {template.isStarter && (
+                    <span className="inline-flex items-center gap-1">
+                      <Mail className="h-3 w-3" />
+                      {template.industry ? t(`chooseTemplate.industries.${template.industry}`) : ''}
+                    </span>
+                  )}
                   <span>{template.language ?? 'en_US'}</span>
-                  {/* Status is omitted on purpose — every template
-                      shown here is already filtered to APPROVED,
-                      so the chip carried no information. */}
                 </div>
               </button>
             );

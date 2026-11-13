@@ -10,7 +10,7 @@ ALTER TABLE ai_configs
 
 ALTER TABLE ai_configs
   ADD CONSTRAINT ai_configs_provider_check
-  CHECK (provider IN ('openai', 'anthropic', 'openai_compatible'));
+  CHECK (provider IN ('openai', 'anthropic', 'openai_compatible', 'gemini'));
 
 ALTER TABLE ai_configs
   DROP CONSTRAINT IF EXISTS ai_configs_openai_compatible_base_url_check;
@@ -27,4 +27,4 @@ ALTER TABLE ai_usage_log
 
 ALTER TABLE ai_usage_log
   ADD CONSTRAINT ai_usage_log_provider_check
-  CHECK (provider IN ('openai', 'anthropic', 'openai_compatible'));
+  CHECK (provider IN ('openai', 'anthropic', 'openai_compatible', 'gemini'));
