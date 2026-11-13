@@ -69,6 +69,22 @@ function safeColor(value: string | null): string {
 }
 
 /**
+ * Escape plain-text body content and turn bare http(s) URLs into
+ * clickable anchors. Runs after escaping, so the only markup produced
+ * here is the anchor itself.
+ */
+function renderBodyHtml(text: string, color: string): string {
+  const escaped = escapeHtml(text);
+  return escaped.replace(/https?:\/\/[^\s<]+/g, (match) => {
+    // Keep trailing punctuation outside the link — "see https://x.com."
+    // should not link the period.
+    const trailing = /[.,;:!?)\]]$/.exec(match)?.[0] ?? '';
+    const url = trailing ? match.slice(0, -1) : match;
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:${color};text-decoration:underline;">${url}</a>${trailing}`;
+  });
+}
+
+/**
  * Wrap a plain-text email body in a branded HTML shell.
  *
  * When the account has no logo and no brand name, returns `null` so the
@@ -84,7 +100,7 @@ export function buildBrandedHtml(
 
   const color = safeColor(branding.brand_color);
   const safeBrand = brandName ? escapeHtml(brandName) : '';
-  const bodyHtml = escapeHtml(text);
+  const bodyHtml = renderBodyHtml(text, color);
   const year = new Date().getFullYear();
 
   const header = logo

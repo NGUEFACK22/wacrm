@@ -27,6 +27,22 @@ interface SendRecipient {
 }
 
 /**
+ * The display name lands in a mail header (`From: "Name" <addr>`), so
+ * strip CR/LF and control characters — otherwise a newline in the name
+ * lets the caller inject extra headers (Bcc, Reply-To, ...).
+ */
+function sanitizeDisplayName(value: string | undefined | null): string | null {
+  if (!value) return null
+  const cleaned = value
+    .replace(/[\r\n\u0000-\u001f\u007f]/g, ' ')
+    .replace(/["\\]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 120)
+  return cleaned || null
+}
+
+/**
  * POST /api/email/send
  *
  * Send one or more emails through the account's configured SMTP.
@@ -37,6 +53,7 @@ interface SendRecipient {
  *     recipients: [{ to: string, name?: string }],
  *     subject: string,
  *     text: string,
+ *     fromName?: string,   // display name the recipient sees, overrides SMTP
  *   }
  *
  * Requires 'agent' role — sending email is a write operation.
@@ -52,6 +69,7 @@ export async function POST(request: Request) {
       recipients?: SendRecipient[]
       subject?: string
       text?: string
+      fromName?: string
     }
     try {
       body = (await request.json()) as typeof body
@@ -62,6 +80,8 @@ export async function POST(request: Request) {
     const recipients = body.recipients ?? []
     const subject = body.subject ?? ''
     const text = body.text ?? ''
+    // Sender display name for this send. Falls back to the SMTP default.
+    const fromNameOverride = sanitizeDisplayName(body.fromName)
 
     if (!Array.isArray(recipients) || recipients.length === 0) {
       return NextResponse.json(
@@ -96,10 +116,18 @@ export async function POST(request: Request) {
       const { to, name } = recipient
       if (!to) continue
 
+      // `{{name}}` in the override lets one send address every recipient
+      // by their own name ("Service client de Acme — Jean").
+      const personalizedFrom = fromNameOverride
+        ? sanitizeDisplayName(
+            fromNameOverride.replace(/\{\{\s*name\s*\}\}/gi, name?.trim() || ''),
+          )
+        : null
+
       try {
         const { messageId } = await sendSmtpEmail(
           smtp.transporter,
-          { email: smtp.from.email, name: smtp.from.name },
+          { email: smtp.from.email, name: personalizedFrom ?? smtp.from.name },
           to,
           subject,
           text,

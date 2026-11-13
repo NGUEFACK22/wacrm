@@ -48,6 +48,36 @@ describe('buildBrandedHtml', () => {
     expect(html).not.toContain('javascript:');
   });
 
+  it('turns bare http(s) URLs in the body into anchors', () => {
+    const html = buildBrandedHtml('Pay here: https://pay.example.com/inv/42', {
+      logo_url: null,
+      brand_name: 'Acme',
+      brand_color: '#2563eb',
+    });
+    expect(html).toContain(
+      '<a href="https://pay.example.com/inv/42" target="_blank" rel="noopener noreferrer"',
+    );
+  });
+
+  it('does not swallow trailing punctuation into the link', () => {
+    const html = buildBrandedHtml('Open https://example.com.', {
+      logo_url: null,
+      brand_name: 'Acme',
+      brand_color: '#111827',
+    });
+    expect(html).toContain('>https://example.com</a>.');
+  });
+
+  it('never linkifies javascript: or escaped markup', () => {
+    const html = buildBrandedHtml('javascript:alert(1) <b>x</b>', {
+      logo_url: null,
+      brand_name: 'Acme',
+      brand_color: '#111827',
+    });
+    expect(html).not.toContain('<a href="javascript');
+    expect(html).not.toContain('<b>');
+  });
+
   it('replaces an invalid accent colour with the default', () => {
     const html = buildBrandedHtml('hello', {
       logo_url: null,

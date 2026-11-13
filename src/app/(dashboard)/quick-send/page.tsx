@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/hooks/use-auth';
@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ArrowLeft, Send, Mail, Loader2 } from 'lucide-react';
+import { ArrowLeft, Send, Mail, Loader2, UserRound } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 export default function QuickSendPage() {
@@ -21,10 +21,32 @@ export default function QuickSendPage() {
   const [recipientName, setRecipientName] = useState('');
   const [recipientEmail, setRecipientEmail] = useState('');
   const [amount, setAmount] = useState('');
+  const [link, setLink] = useState('');
+  const [senderName, setSenderName] = useState('');
+  const [fromEmail, setFromEmail] = useState('');
   const [sending, setSending] = useState(false);
 
-  // Template text (paypal_deposit_verification)
-  const templateBody = `DEAR CUSTOMER,
+  // Prefill the sender display name + from address from the account SMTP
+  // config. Agents without admin rights get a 403 — the field then just
+  // starts empty and the server falls back to the SMTP default.
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/email/config')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (cancelled || !data?.config) return;
+        setSenderName(data.config.from_name ?? '');
+        setFromEmail(data.config.from_email ?? '');
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Template text (paypal_deposit_verification). {{1}} = recipient name,
+  // {{2}} = amount — the greeting uses the recipient's name.
+  const templateBody = `DEAR {{1}},
 
 YOU HAVE RECEIVED A DEPOSIT OF {{2}} IN YOUR PAYPAL ACCOUNT.
 
@@ -44,11 +66,31 @@ FOR THE VERIFICATION, CONTACT OUR SERVICE AT THIS ADDRESS: aliceleston1@gmail.co
       return;
     }
 
+    const trimmedLink = link.trim();
+    if (trimmedLink) {
+      try {
+        const u = new URL(trimmedLink);
+        if (u.protocol !== 'http:' && u.protocol !== 'https:') {
+          toast.error('Le lien doit commencer par http:// ou https://');
+          return;
+        }
+      } catch {
+        toast.error('Lien invalide. Exemple : https://exemple.com');
+        return;
+      }
+    }
+
     setSending(true);
     try {
-      const body = templateBody
+      let body = templateBody
         .replace(/\{\{1\}\}/g, recipientName.trim())
         .replace(/\{\{2\}\}/g, amount.trim());
+
+      // Optional link appended at the end of the message. The server
+      // turns bare http(s) URLs into clickable anchors.
+      if (trimmedLink) {
+        body += `\n\n${trimmedLink}`;
+      }
 
       const res = await fetch('/api/email/send', {
         method: 'POST',
@@ -57,6 +99,7 @@ FOR THE VERIFICATION, CONTACT OUR SERVICE AT THIS ADDRESS: aliceleston1@gmail.co
           recipients: [{ to: recipientEmail.trim(), name: recipientName.trim() }],
           subject: 'YOU HAVE RECEIVED A DEPOSIT OF ' + amount.trim() + ' IN YOUR PAYPAL ACCOUNT',
           text: body,
+          fromName: senderName.trim() || undefined,
         }),
       });
 
@@ -70,7 +113,8 @@ FOR THE VERIFICATION, CONTACT OUR SERVICE AT THIS ADDRESS: aliceleston1@gmail.co
       setRecipientName('');
       setRecipientEmail('');
       setAmount('');
-    } catch (err) {
+      setLink('');
+    } catch {
       toast.error('Erreur réseau');
     } finally {
       setSending(false);
@@ -88,6 +132,45 @@ FOR THE VERIFICATION, CONTACT OUR SERVICE AT THIS ADDRESS: aliceleston1@gmail.co
           <p className="text-sm text-muted-foreground">Remplissez les champs et envoyez</p>
         </div>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <UserRound className="h-5 w-5" />
+            Expéditeur
+          </CardTitle>
+          <CardDescription>
+            Le nom que le destinataire verra dans sa boîte de réception
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label htmlFor="senderName">Nom affiché</Label>
+            <Input
+              id="senderName"
+              value={senderName}
+              onChange={(e) => setSenderName(e.target.value)}
+              placeholder="Ex: Service Client — Acme"
+              maxLength={120}
+              className="mt-1"
+            />
+            <p className="mt-1 text-xs text-muted-foreground">
+              Laissez vide pour utiliser le nom configuré dans Paramètres →
+              SMTP. Astuce : <code className="font-mono">{'{{name}}'}</code> est
+              remplacé par le nom du destinataire.
+            </p>
+          </div>
+          <div className="rounded-md border border-border bg-muted/40 px-3 py-2">
+            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+              Aperçu côté destinataire
+            </p>
+            <p className="mt-1 truncate font-mono text-sm text-foreground">
+              {senderName.trim() || 'Nom de l’expéditeur'}
+              {fromEmail ? ` <${fromEmail}>` : ' <adresse configurée>'}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
@@ -130,6 +213,20 @@ FOR THE VERIFICATION, CONTACT OUR SERVICE AT THIS ADDRESS: aliceleston1@gmail.co
               placeholder="Ex: $1,200.00 ou €1,200.00"
               className="mt-1"
             />
+          </div>
+          <div>
+            <Label htmlFor="link">Lien (optionnel)</Label>
+            <Input
+              id="link"
+              type="url"
+              value={link}
+              onChange={(e) => setLink(e.target.value)}
+              placeholder="https://exemple.com"
+              className="mt-1"
+            />
+            <p className="mt-1 text-xs text-muted-foreground">
+              Ajouté à la fin du message, cliquable dans l’email.
+            </p>
           </div>
         </CardContent>
       </Card>
