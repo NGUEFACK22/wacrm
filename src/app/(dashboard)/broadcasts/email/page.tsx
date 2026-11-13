@@ -521,6 +521,75 @@ export default function EmailBroadcastPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
+                {/* Image d'en-tête — première chose de la carte, parce
+                    que c'est la seule pièce visuelle de la campagne : elle
+                    part au-dessus du message, sous le logo, pleine
+                    largeur. Vit dans le bucket chat-media, donc l'URL est
+                    publique et les clients mail peuvent la charger. */}
+                <div className="rounded-lg border border-border bg-muted/30 p-3">
+                  <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                    <Label className="flex items-center gap-1.5 text-muted-foreground">
+                      <ImagePlus className="size-3.5" />
+                      {t('image')}
+                    </Label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        ref={imageInputRef}
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp,image/gif"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) void handleImageFile(file);
+                          e.target.value = '';
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={uploadingImage}
+                        onClick={() => imageInputRef.current?.click()}
+                      >
+                        {uploadingImage ? (
+                          <Loader2 className="mr-1.5 size-3.5 animate-spin" />
+                        ) : (
+                          <ImagePlus className="mr-1.5 size-3.5" />
+                        )}
+                        {headerImageUrl ? t('imageReplace') : t('imageUpload')}
+                      </Button>
+                      {headerImageUrl && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setHeaderImageUrl('')}
+                        >
+                          <Trash2 className="mr-1.5 size-3.5" />
+                          {t('imageRemove')}
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+
+                  {headerImageUrl ? (
+                    <div className="overflow-hidden rounded-md border border-border bg-background">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={headerImageUrl}
+                        alt={t('imagePreviewAlt')}
+                        className="max-h-40 w-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex h-20 items-center justify-center rounded-md border border-dashed border-border text-xs text-muted-foreground">
+                      {t('imageEmpty')}
+                    </div>
+                  )}
+
+                  <p className="mt-2 text-xs text-muted-foreground">{t('imageHint')}</p>
+                </div>
+
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="amount" className="text-muted-foreground">
@@ -579,61 +648,6 @@ export default function EmailBroadcastPage() {
                     className="border-border bg-muted text-foreground"
                   />
                   <p className="text-xs text-muted-foreground">{t('linkHint')}</p>
-                </div>
-
-                {/* Image d'en-tête — téléversée ici, pas dans le modèle */}
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-1.5 text-muted-foreground">
-                    <ImagePlus className="size-3.5" />
-                    {t('image')}
-                  </Label>
-                  <input
-                    ref={imageInputRef}
-                    type="file"
-                    accept="image/png,image/jpeg,image/webp,image/gif"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) void handleImageFile(file);
-                      e.target.value = '';
-                    }}
-                  />
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      disabled={uploadingImage}
-                      onClick={() => imageInputRef.current?.click()}
-                    >
-                      {uploadingImage ? (
-                        <Loader2 className="mr-1.5 size-3.5 animate-spin" />
-                      ) : (
-                        <ImagePlus className="mr-1.5 size-3.5" />
-                      )}
-                      {headerImageUrl ? t('imageReplace') : t('imageUpload')}
-                    </Button>
-                    {headerImageUrl && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setHeaderImageUrl('')}
-                      >
-                        <Trash2 className="mr-1.5 size-3.5" />
-                        {t('imageRemove')}
-                      </Button>
-                    )}
-                  </div>
-                  {headerImageUrl && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={headerImageUrl}
-                      alt={t('imagePreviewAlt')}
-                      className="max-h-32 rounded-md border border-border object-contain"
-                    />
-                  )}
-                  <p className="text-xs text-muted-foreground">{t('imageHint')}</p>
                 </div>
               </CardContent>
             </Card>

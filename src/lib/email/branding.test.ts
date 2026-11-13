@@ -92,7 +92,7 @@ describe('buildBrandedHtml', () => {
 describe('buildBrandedHtml campaign hero image', () => {
   const HERO = 'https://cdn.example.com/campaign/hero.png';
 
-  it('renders the hero image above the body', () => {
+  it('renders the hero image at the very top, above the brand mark', () => {
     const html = buildBrandedHtml('hello', {
       logo_url: 'https://cdn.example.com/logo.png',
       brand_name: 'Acme',
@@ -100,8 +100,8 @@ describe('buildBrandedHtml campaign hero image', () => {
     }, { heroImageUrl: HERO });
 
     expect(html).toContain(HERO);
-    // Hero sits between the brand header and the body paragraph.
-    expect(html!.indexOf(HERO)).toBeGreaterThan(
+    // Hero sits above the brand logo and above the body.
+    expect(html!.indexOf(HERO)).toBeLessThan(
       html!.indexOf('https://cdn.example.com/logo.png'),
     );
     expect(html!.indexOf(HERO)).toBeLessThan(html!.indexOf('hello'));

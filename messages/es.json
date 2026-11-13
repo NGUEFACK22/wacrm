@@ -1061,10 +1061,10 @@
       "personalize": {
         "title": "Personalizar variables",
         "subtitle": "Asigna las variables de la plantilla a campos del contacto o ingresa valores fijos.",
-        "headerImage": "Imagen del encabezado",
-        "headerImageDesc": "Esta plantilla requiere una imagen de encabezado.",
+        "headerImage": "Imagen de cabecera",
+        "headerImageDesc": "Se coloca en la parte superior del mensaje, a todo el ancho. En el correo siempre se incluye; en WhatsApp solo se envía si la plantilla tiene cabecera de imagen.",
         "imageUrl": "URL de la imagen",
-        "imageUrlPlaceholder": "https://example.com/image.jpg",
+        "imageUrlPlaceholder": "https://ejemplo.com/imagen.jpg",
         "variables": "Variables",
         "varDesc": "Define valores para {{name}}",
         "type": "Tipo",
@@ -1077,11 +1077,11 @@
         "customField": "Campo personalizado",
         "selectCustomField": "Selecciona el campo personalizado...",
         "preview": "Vista previa",
-        "previewSample": "Mostrando vista previa con datos de ejemplo.",
+        "previewSample": "Vista previa con datos de ejemplo.",
         "noPreview": "Vista previa no disponible.",
-        "headerPreviewAlt": "Vista previa del encabezado",
-        "mediaUrlRequired": "Se necesita una URL de archivo para enviar esta plantilla.",
-        "mediaUrlInvalid": "Ingresa una URL http(s) válida.",
+        "headerPreviewAlt": "Vista previa de la cabecera",
+        "mediaUrlRequired": "Se requiere una URL de imagen para enviar esta plantilla.",
+        "mediaUrlInvalid": "Introduce una URL http(s) válida.",
         "enterValue": "Ingresa un valor...",
         "loadingFields": "Cargando…",
         "noCustomFields": "Sin campos personalizados",
@@ -1093,7 +1093,15 @@
           "company": "Company"
         },
         "sampleName": "Juan Pérez",
-        "sampleCompany": "Empresa Ejemplo S.A."
+        "sampleCompany": "Empresa Ejemplo S.A.",
+        "headerImageNoWhatsAppHeader": "Esta plantilla no tiene cabecera de imagen en WhatsApp, así que la imagen solo se usará en el correo. Para enviarla por WhatsApp, añade una cabecera de imagen a la plantilla en Ajustes → Plantillas.",
+        "imageUpload": "Subir una imagen",
+        "imageUploading": "Subiendo…",
+        "imageRemove": "Quitar",
+        "imageWrongType": "Elige un archivo de imagen (PNG, JPEG, WebP o GIF).",
+        "imageTooLarge": "Imagen demasiado grande — {max} MB máximo.",
+        "imageUploaded": "Imagen subida",
+        "imageUploadFailed": "Error al subir"
       },
       "scheduleSend": {
         "title": "Revisar y enviar",
@@ -1223,7 +1231,8 @@
       "imageWrongType": "Elige un archivo de imagen (PNG, JPEG, WebP o GIF).",
       "imageTooLarge": "Imagen demasiado grande — {max} MB máximo.",
       "imageUploaded": "Imagen subida",
-      "imageUploadFailed": "Error al subir"
+      "imageUploadFailed": "Error al subir",
+      "imageEmpty": "Sin imagen — los correos salen solo con el texto y tu identidad visual."
     }
   },
   "Automations": {

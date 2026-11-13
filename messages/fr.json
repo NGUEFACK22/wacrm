@@ -1061,10 +1061,10 @@
       "personalize": {
         "title": "Personalize Variables",
         "subtitle": "Map your template variables to contact fields or provide static values.",
-        "headerImage": "Header Image",
-        "headerImageDesc": "This template requires a header image.",
-        "imageUrl": "Image URL",
-        "imageUrlPlaceholder": "https://example.com/image.jpg",
+        "headerImage": "Image de l'en-tête",
+        "headerImageDesc": "Placée en haut du message, pleine largeur. Sur email elle est toujours intégrée ; sur WhatsApp elle n'est envoyée que si le modèle possède un en-tête image.",
+        "imageUrl": "URL de l'image",
+        "imageUrlPlaceholder": "https://exemple.com/image.jpg",
         "variables": "Variables",
         "varDesc": "Set values for {{name}}",
         "type": "Type",
@@ -1076,12 +1076,12 @@
         "selectContactField": "Sélectionner field...",
         "customField": "Custom Champ",
         "selectCustomField": "Sélectionner custom field...",
-        "preview": "Unperçu",
-        "previewSample": "Showing preview with sample data.",
-        "noPreview": "Unperçu not available.",
-        "headerPreviewAlt": "Header preview",
-        "mediaUrlRequired": "Un media URL is required to send this template.",
-        "mediaUrlInvalid": "Enter a valid http(s) URL.",
+        "preview": "Aperçu",
+        "previewSample": "Aperçu avec des données d'exemple.",
+        "noPreview": "Aperçu indisponible.",
+        "headerPreviewAlt": "Aperçu de l'en-tête",
+        "mediaUrlRequired": "Une URL d'image est requise pour envoyer ce modèle.",
+        "mediaUrlInvalid": "Saisissez une URL http(s) valide.",
         "enterValue": "Enter value...",
         "loadingFields": "Chargement…",
         "noCustomFields": "Non custom fields",
@@ -1093,7 +1093,15 @@
           "company": "Société"
         },
         "sampleName": "John Doe",
-        "sampleCompany": "Uncme Corp"
+        "sampleCompany": "Uncme Corp",
+        "headerImageNoWhatsAppHeader": "Ce modèle n'a pas d'en-tête image sur WhatsApp : l'image ne servira que pour l'email. Pour l'envoyer sur WhatsApp, ajoutez un en-tête image au modèle dans Paramètres → Modèles.",
+        "imageUpload": "Téléverser une image",
+        "imageUploading": "Téléversement…",
+        "imageRemove": "Retirer",
+        "imageWrongType": "Choisissez un fichier image (PNG, JPEG, WebP ou GIF).",
+        "imageTooLarge": "Image trop lourde — {max} Mo maximum.",
+        "imageUploaded": "Image téléversée",
+        "imageUploadFailed": "Échec du téléversement"
       },
       "scheduleSend": {
         "title": "Review & Envoyer",
@@ -1223,7 +1231,8 @@
       "imageWrongType": "Choisissez un fichier image (PNG, JPEG, WebP ou GIF).",
       "imageTooLarge": "Image trop lourde — {max} Mo maximum.",
       "imageUploaded": "Image téléversée",
-      "imageUploadFailed": "Échec du téléversement"
+      "imageUploadFailed": "Échec du téléversement",
+      "imageEmpty": "Aucune image — les emails partent avec le texte et votre signature visuelle seulement."
     }
   },
   "Automations": {

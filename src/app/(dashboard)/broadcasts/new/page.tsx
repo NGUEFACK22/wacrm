@@ -227,6 +227,9 @@ export default function NewBroadcastPage() {
           })),
           subject,
           text: body,
+          // Campaign header image, placed at the top of the branded
+          // email shell. Empty string → omitted, plain body only.
+          headerImageUrl: headerMediaUrl.trim() || undefined,
         }),
       });
 

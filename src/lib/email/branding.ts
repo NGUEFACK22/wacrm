@@ -116,8 +116,21 @@ export function buildBrandedHtml(
     ? `<img src="${escapeHtml(logo)}" alt="${safeBrand}" width="180" style="display:block;max-height:64px;max-width:220px;width:auto;height:auto;border:0;outline:none;text-decoration:none;" />`
     : `<span style="font-size:18px;font-weight:600;color:${color};">${safeBrand}</span>`;
 
-  // Hero image: full-width, block-level, no fixed height — mail clients
-  // scale by width and the aspect ratio follows the file.
+  // No logo and no brand name (the campaign image is the only visual) —
+  // skip the row entirely instead of rendering an empty 28px band.
+  const headerRow =
+    logo || safeBrand
+      ? `<tr>
+             <td style="padding:28px 28px 8px 28px;text-align:center;">
+               ${header}
+             </td>
+           </tr>`
+      : '';
+
+  // Hero image: full-bleed at the very top of the card, above the brand
+  // mark — the classic promotional layout. The wrapper table already
+  // sets `overflow:hidden`, so the image corners follow the card radius
+  // without an extra style, and Outlook's table renderer clips it too.
   const heroBlock = hero
     ? `<tr>
              <td style="padding:0;font-size:0;line-height:0;">
@@ -147,12 +160,8 @@ export function buildBrandedHtml(
           <tr>
             <td style="height:4px;background-color:${color};line-height:4px;font-size:0;">&nbsp;</td>
           </tr>
-          <tr>
-            <td style="padding:28px 28px 8px 28px;text-align:center;">
-              ${header}
-            </td>
-          </tr>
           ${heroBlock}
+          ${headerRow}
           <tr>
             <td style="padding:16px 28px 28px 28px;">
               <div style="font-size:15px;line-height:1.65;color:#111827;white-space:pre-wrap;">${bodyHtml}</div>

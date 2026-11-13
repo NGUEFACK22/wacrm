@@ -1061,10 +1061,10 @@
       "personalize": {
         "title": "Personalizar variáveis",
         "subtitle": "Associe as variáveis do modelo a campos do contato ou informe valores fixos.",
-        "headerImage": "Imagem do cabeçalho",
-        "headerImageDesc": "Este modelo exige uma imagem de cabeçalho.",
+        "headerImage": "Imagem de cabeçalho",
+        "headerImageDesc": "Colocada no topo da mensagem, em largura total. No e-mail é sempre incluída; no WhatsApp só é enviada quando o modelo tem cabeçalho de imagem.",
         "imageUrl": "URL da imagem",
-        "imageUrlPlaceholder": "https://example.com/image.jpg",
+        "imageUrlPlaceholder": "https://exemplo.com/imagem.jpg",
         "variables": "Variáveis",
         "varDesc": "Defina valores para {{name}}",
         "type": "Tipo",
@@ -1076,11 +1076,11 @@
         "selectContactField": "Selecione o campo...",
         "customField": "Campo personalizado",
         "selectCustomField": "Selecione o campo personalizado...",
-        "preview": "Pré-visualização",
-        "previewSample": "Mostrando pré-visualização com dados de exemplo.",
-        "noPreview": "Pré-visualização indisponível.",
-        "headerPreviewAlt": "Pré-visualização do cabeçalho",
-        "mediaUrlRequired": "É necessária uma URL de mídia para enviar este modelo.",
+        "preview": "Prévia",
+        "previewSample": "Prévia com dados de exemplo.",
+        "noPreview": "Prévia indisponível.",
+        "headerPreviewAlt": "Prévia do cabeçalho",
+        "mediaUrlRequired": "Uma URL de imagem é necessária para enviar este modelo.",
         "mediaUrlInvalid": "Informe uma URL http(s) válida.",
         "enterValue": "Informe o valor...",
         "loadingFields": "Carregando…",
@@ -1093,7 +1093,15 @@
           "company": "Company"
         },
         "sampleName": "João Silva",
-        "sampleCompany": "Empresa Exemplo Ltda."
+        "sampleCompany": "Empresa Exemplo Ltda.",
+        "headerImageNoWhatsAppHeader": "Este modelo não tem cabeçalho de imagem no WhatsApp, então a imagem será usada apenas no e-mail. Para enviá-la no WhatsApp, adicione um cabeçalho de imagem ao modelo em Configurações → Modelos.",
+        "imageUpload": "Enviar uma imagem",
+        "imageUploading": "Enviando…",
+        "imageRemove": "Remover",
+        "imageWrongType": "Escolha um arquivo de imagem (PNG, JPEG, WebP ou GIF).",
+        "imageTooLarge": "Imagem muito grande — {max} MB no máximo.",
+        "imageUploaded": "Imagem enviada",
+        "imageUploadFailed": "Falha no envio"
       },
       "scheduleSend": {
         "title": "Revisar e enviar",
@@ -1223,7 +1231,8 @@
       "imageWrongType": "Escolha um arquivo de imagem (PNG, JPEG, WebP ou GIF).",
       "imageTooLarge": "Imagem muito grande — {max} MB no máximo.",
       "imageUploaded": "Imagem enviada",
-      "imageUploadFailed": "Falha no envio"
+      "imageUploadFailed": "Falha no envio",
+      "imageEmpty": "Sem imagem — os e-mails saem apenas com o texto e a sua identidade visual."
     }
   },
   "Automations": {

@@ -1061,8 +1061,8 @@
       "personalize": {
         "title": "Personalize Variables",
         "subtitle": "Map your template variables to contact fields or provide static values.",
-        "headerImage": "Header Image",
-        "headerImageDesc": "This template requires a header image.",
+        "headerImage": "Header image",
+        "headerImageDesc": "Placed at the top of the message, full width. On email it is always included; on WhatsApp it is only sent when the template has an image header.",
         "imageUrl": "Image URL",
         "imageUrlPlaceholder": "https://example.com/image.jpg",
         "variables": "Variables",
@@ -1078,9 +1078,9 @@
         "selectCustomField": "Select custom field...",
         "preview": "Preview",
         "previewSample": "Showing preview with sample data.",
-        "noPreview": "Preview not available.",
+        "noPreview": "Preview unavailable.",
         "headerPreviewAlt": "Header preview",
-        "mediaUrlRequired": "A media URL is required to send this template.",
+        "mediaUrlRequired": "An image URL is required to send this template.",
         "mediaUrlInvalid": "Enter a valid http(s) URL.",
         "enterValue": "Enter value...",
         "loadingFields": "Loading…",
@@ -1093,7 +1093,15 @@
           "company": "Company"
         },
         "sampleName": "John Doe",
-        "sampleCompany": "Acme Corp"
+        "sampleCompany": "Acme Corp",
+        "headerImageNoWhatsAppHeader": "This template has no image header on WhatsApp, so the image will be used for email only. To send it on WhatsApp, add an image header to the template in Settings → Templates.",
+        "imageUpload": "Upload an image",
+        "imageUploading": "Uploading…",
+        "imageRemove": "Remove",
+        "imageWrongType": "Pick an image file (PNG, JPEG, WebP or GIF).",
+        "imageTooLarge": "Image too large — {max} MB max.",
+        "imageUploaded": "Image uploaded",
+        "imageUploadFailed": "Upload failed"
       },
       "channel": {
         "title": "Choose Send Channel",
@@ -1223,7 +1231,8 @@
       "imageWrongType": "Pick an image file (PNG, JPEG, WebP or GIF).",
       "imageTooLarge": "Image too large — {max} MB max.",
       "imageUploaded": "Image uploaded",
-      "imageUploadFailed": "Upload failed"
+      "imageUploadFailed": "Upload failed",
+      "imageEmpty": "No image — emails go out with text and your branding only."
     }
   },
   "Automations": {

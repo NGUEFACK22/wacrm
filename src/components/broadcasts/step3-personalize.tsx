@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Contact, CustomField, MessageTemplate } from '@/types';
 import { Button } from '@/components/ui/button';
@@ -12,9 +12,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArrowLeft, ArrowRight, Eye, ImageIcon, Loader2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Eye, ImageIcon, Loader2, Upload, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
 import { extractTemplateVariables } from '@/lib/whatsapp/template-validators';
+import {
+  MEDIA_MAX_BYTES_BY_KIND,
+  uploadAccountMedia,
+} from '@/lib/storage/upload-media';
 
 type VariableType = 'static' | 'field' | 'custom_field';
 
@@ -32,9 +37,7 @@ interface Step3Props {
   onHeaderMediaUrlChange: (url: string) => void;
   onNext: () => void;
   onBack: () => void;
-}
-
-const MEDIA_HEADER_TYPES = ['image', 'video', 'document'] as const;
+}const MEDIA_HEADER_TYPES = ['image', 'video', 'document'] as const;
 type MediaHeaderType = (typeof MEDIA_HEADER_TYPES)[number];
 
 function isMediaHeaderType(value: unknown): value is MediaHeaderType {
@@ -85,6 +88,42 @@ export function Step3Personalize({
     Map<string, string>
   >(new Map());
   const [loadingPreview, setLoadingPreview] = useState(true);
+
+  // Header image upload. A file dropped here goes to the account-scoped
+  // chat-media bucket and lands in `headerMediaUrl`, which is the same
+  // value the URL field writes and the same one the send uses — the two
+  // inputs are interchangeable by design (paste a hosted URL, or upload
+  // one and use the public URL we hand back).
+  const [uploadingHeader, setUploadingHeader] = useState(false);
+  const headerFileRef = useRef<HTMLInputElement>(null);
+
+  async function handleHeaderFile(file: File) {
+    if (!file.type.startsWith('image/')) {
+      toast.error(t('personalize.imageWrongType'));
+      return;
+    }
+    if (file.size > MEDIA_MAX_BYTES_BY_KIND.image) {
+      toast.error(
+        t('personalize.imageTooLarge', {
+          max: Math.round(MEDIA_MAX_BYTES_BY_KIND.image / 1024 / 1024),
+        }),
+      );
+      return;
+    }
+    setUploadingHeader(true);
+    try {
+      const { publicUrl } = await uploadAccountMedia('chat-media', file);
+      onHeaderMediaUrlChange(publicUrl);
+      toast.success(t('personalize.imageUploaded'));
+    } catch (err) {
+      console.error('[broadcast-wizard] header upload failed:', err);
+      toast.error(
+        err instanceof Error ? err.message : t('personalize.imageUploadFailed'),
+      );
+    } finally {
+      setUploadingHeader(false);
+    }
+  }
 
   // Load user's custom fields + a representative contact for the
   // live preview. Fall back to sample data if no contacts exist yet.
@@ -249,47 +288,103 @@ export function Step3Personalize({
         </p>
       </div>
 
-      {mediaHeaderType && (
-        <div className="rounded-xl border border-border bg-card/50 p-4">
-          <div className="mb-3 flex items-center gap-2">
-            <ImageIcon className="h-4 w-4 text-primary" />
-            <p className="text-sm font-medium text-foreground">{t('personalize.headerImage')}</p>
+      {/*
+        Header image — always rendered, not only for media-header
+        templates. That conditional was the reason the field seemed to be
+        missing: built-in starters carry `header_type = null`, so the
+        whole block disappeared and there was nowhere to upload anything.
+      */}
+      <div className="rounded-xl border border-border bg-card/50 p-4">
+        <div className="mb-3 flex items-center gap-2">
+          <ImageIcon className="h-4 w-4 text-primary" />
+          <p className="text-sm font-medium text-foreground">
+            {t('personalize.headerImage')}
+          </p>
+          {mediaHeaderType && (
             <span className="inline-flex items-center rounded-md bg-primary/10 px-2 py-0.5 text-xs font-medium uppercase text-primary">
               {mediaHeaderType}
             </span>
-          </div>
-          <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
-            {t('personalize.imageUrl')}
-          </label>
-          <Input
-            type="url"
-            value={headerMediaUrl}
-            onChange={(e) => onHeaderMediaUrlChange(e.target.value)}
-            placeholder={t('personalize.imageUrlPlaceholder')}
-            className="border-border bg-muted text-foreground placeholder:text-muted-foreground"
-          />
-          <p className="mt-1.5 text-xs text-muted-foreground">
-            {t('personalize.headerImageDesc')}
-          </p>
-          {mediaHeaderType === 'image' &&
-            headerMediaError === null &&
-            headerMediaUrl.trim() && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={headerMediaUrl.trim()}
-                alt={t('personalize.headerPreviewAlt')}
-                className="mt-3 max-h-40 rounded-lg border border-border object-contain"
-              />
-            )}
-          {headerMediaError && (
-            <p className="mt-1.5 text-xs text-amber-300">
-              {headerMediaError === 'missing'
-                ? t('personalize.mediaUrlRequired')
-                : t('personalize.mediaUrlInvalid')}
-            </p>
           )}
         </div>
-      )}
+
+        <div className="mb-2 flex flex-wrap items-center gap-2">
+          <input
+            ref={headerFileRef}
+            type="file"
+            accept="image/png,image/jpeg,image/webp,image/gif"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) void handleHeaderFile(file);
+              e.target.value = '';
+            }}
+          />
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={uploadingHeader}
+            onClick={() => headerFileRef.current?.click()}
+          >
+            {uploadingHeader ? (
+              <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Upload className="mr-1.5 h-3.5 w-3.5" />
+            )}
+            {uploadingHeader
+              ? t('personalize.imageUploading')
+              : t('personalize.imageUpload')}
+          </Button>
+          {headerMediaUrl.trim() && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => onHeaderMediaUrlChange('')}
+            >
+              <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+              {t('personalize.imageRemove')}
+            </Button>
+          )}
+        </div>
+
+        <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+          {t('personalize.imageUrl')}
+        </label>
+        <Input
+          type="url"
+          value={headerMediaUrl}
+          onChange={(e) => onHeaderMediaUrlChange(e.target.value)}
+          placeholder={t('personalize.imageUrlPlaceholder')}
+          className="border-border bg-muted text-foreground placeholder:text-muted-foreground"
+        />
+        <p className="mt-1.5 text-xs text-muted-foreground">
+          {t('personalize.headerImageDesc')}
+        </p>
+
+        {headerMediaUrl.trim() && headerMediaError === null && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={headerMediaUrl.trim()}
+            alt={t('personalize.headerPreviewAlt')}
+            className="mt-3 max-h-40 w-full rounded-lg border border-border object-contain"
+          />
+        )}
+
+        {headerMediaError && (
+          <p className="mt-1.5 text-xs text-amber-300">
+            {headerMediaError === 'missing'
+              ? t('personalize.mediaUrlRequired')
+              : t('personalize.mediaUrlInvalid')}
+          </p>
+        )}
+
+        {!mediaHeaderType && (
+          <p className="mt-2 rounded-md border border-border bg-muted/40 px-2.5 py-2 text-xs text-muted-foreground">
+            {t('personalize.headerImageNoWhatsAppHeader')}
+          </p>
+        )}
+      </div>
 
       {placeholders.length === 0 && !mediaHeaderType ? (
         <div className="rounded-xl border border-border bg-card/50 p-6 text-center">

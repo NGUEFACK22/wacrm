@@ -1062,7 +1062,7 @@
         "title": "변수 개인화",
         "subtitle": "템플릿 변수를 연락처 필드에 매핑하거나 고정 값을 입력하세요.",
         "headerImage": "헤더 이미지",
-        "headerImageDesc": "이 템플릿에는 헤더 이미지가 필요합니다.",
+        "headerImageDesc": "메시지 상단에 전체 너비로 배치됩니다. 이메일에서는 항상 포함되고, WhatsApp에서는 템플릿에 이미지 헤더가 있을 때만 전송됩니다.",
         "imageUrl": "이미지 URL",
         "imageUrlPlaceholder": "https://example.com/image.jpg",
         "variables": "변수",
@@ -1077,11 +1077,11 @@
         "customField": "커스텀 필드",
         "selectCustomField": "커스텀 필드 선택...",
         "preview": "미리보기",
-        "previewSample": "샘플 데이터로 미리보기를 표시합니다.",
+        "previewSample": "샘플 데이터로 미리보기 중입니다.",
         "noPreview": "미리보기를 사용할 수 없습니다.",
         "headerPreviewAlt": "헤더 미리보기",
-        "mediaUrlRequired": "이 템플릿을 보내려면 미디어 URL이 필요합니다.",
-        "mediaUrlInvalid": "올바른 http(s) URL을 입력하세요.",
+        "mediaUrlRequired": "이 템플릿을 보내려면 이미지 URL이 필요합니다.",
+        "mediaUrlInvalid": "유효한 http(s) URL을 입력하세요.",
         "enterValue": "값을 입력하세요...",
         "loadingFields": "불러오는 중…",
         "noCustomFields": "커스텀 필드 없음",
@@ -1093,7 +1093,15 @@
           "company": "Company"
         },
         "sampleName": "홍길동",
-        "sampleCompany": "예시 주식회사"
+        "sampleCompany": "예시 주식회사",
+        "headerImageNoWhatsAppHeader": "이 템플릿은 WhatsApp 이미지 헤더가 없어 이미지는 이메일에만 사용됩니다. WhatsApp으로 보내려면 설정 → 템플릿에서 이미지 헤더를 추가하세요.",
+        "imageUpload": "이미지 업로드",
+        "imageUploading": "업로드 중…",
+        "imageRemove": "제거",
+        "imageWrongType": "이미지 파일을 선택하세요 (PNG, JPEG, WebP 또는 GIF).",
+        "imageTooLarge": "이미지가 너무 큽니다 — 최대 {max}MB.",
+        "imageUploaded": "이미지를 업로드했습니다",
+        "imageUploadFailed": "업로드 실패"
       },
       "scheduleSend": {
         "title": "검토 및 전송",
@@ -1223,7 +1231,8 @@
       "imageWrongType": "이미지 파일을 선택하세요 (PNG, JPEG, WebP 또는 GIF).",
       "imageTooLarge": "이미지가 너무 큽니다 — 최대 {max}MB.",
       "imageUploaded": "이미지를 업로드했습니다",
-      "imageUploadFailed": "업로드 실패"
+      "imageUploadFailed": "업로드 실패",
+      "imageEmpty": "이미지 없음 — 이메일은 텍스트와 브랜드만으로 발송됩니다."
     }
   },
   "Automations": {
