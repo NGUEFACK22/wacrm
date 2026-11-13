@@ -13,7 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Radio, Plus, Loader2 } from 'lucide-react';
+import { Radio, Plus, Loader2, Mail } from 'lucide-react';
 import { useCan } from '@/hooks/use-can';
 import { GatedButton } from '@/components/ui/gated-button';
 import { getBroadcastStatus } from '@/lib/broadcast-status';
@@ -188,15 +188,27 @@ export default function BroadcastsPage() {
             {t('subtitle')}
           </p>
         </div>
-        <GatedButton
-          canAct={canCreate}
-          gateReason={tGate('reasons.createBroadcasts')}
-          onClick={() => router.push('/broadcasts/new')}
-          className="bg-primary text-primary-foreground hover:bg-primary/90"
-        >
-          <Plus className="h-4 w-4" />
-          {t('newBroadcast')}
-        </GatedButton>
+        <div className="flex items-center gap-2">
+          <GatedButton
+            canAct={canCreate}
+            gateReason={tGate('reasons.createBroadcasts')}
+            variant="outline"
+            onClick={() => router.push('/broadcasts/email')}
+            className="border-border text-muted-foreground hover:bg-muted hover:text-foreground"
+          >
+            <Mail className="h-4 w-4" />
+            {t('emailBroadcast')}
+          </GatedButton>
+          <GatedButton
+            canAct={canCreate}
+            gateReason={tGate('reasons.createBroadcasts')}
+            onClick={() => router.push('/broadcasts/new')}
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
+          >
+            <Plus className="h-4 w-4" />
+            {t('newBroadcast')}
+          </GatedButton>
+        </div>
       </div>
 
       {broadcasts.length === 0 ? (
@@ -214,6 +226,16 @@ export default function BroadcastsPage() {
           >
             <Plus className="h-4 w-4" />
             {t('newBroadcast')}
+          </GatedButton>
+          <GatedButton
+            canAct={canCreate}
+            gateReason={tGate('reasons.createBroadcasts')}
+            variant="outline"
+            onClick={() => router.push('/broadcasts/email')}
+            className="mt-2 border-border text-muted-foreground hover:bg-muted hover:text-foreground"
+          >
+            <Mail className="h-4 w-4" />
+            {t('emailBroadcast')}
           </GatedButton>
         </div>
       ) : (

@@ -12,6 +12,7 @@ import {
   buildBrandedHtml,
   loadAccountBranding,
 } from '@/lib/email/branding'
+import { personalizeBody } from '@/lib/email/personalize'
 import {
   checkRateLimit,
   rateLimitResponse,
@@ -54,7 +55,15 @@ function sanitizeDisplayName(value: string | undefined | null): string | null {
  *     subject: string,
  *     text: string,
  *     fromName?: string,   // display name the recipient sees, overrides SMTP
+ *     personalize?: {
+ *       amount?: string,   // campaign constant → {{2}} / {{amount}}
+ *       link?: string,     // campaign constant, appended to every body
+ *     },
  *   }
+ *
+ * With `personalize`, `text` is a template: `{{1}}` / `{{name}}` and the
+ * "DEAR CUSTOMER," greeting resolve per recipient, while `amount` and
+ * `link` stay identical for the whole campaign.
  *
  * Requires 'agent' role — sending email is a write operation.
  */
@@ -70,6 +79,7 @@ export async function POST(request: Request) {
       subject?: string
       text?: string
       fromName?: string
+      personalize?: { amount?: string; link?: string }
     }
     try {
       body = (await request.json()) as typeof body
@@ -106,7 +116,16 @@ export async function POST(request: Request) {
     // Brand the message once: logo header + footer when the account has
     // configured branding, otherwise plain text only.
     const branding = await loadAccountBranding(supabase, accountId)
-    const html = buildBrandedHtml(text, branding)
+
+    // Campaign-level values. Same for every recipient by design — only
+    // the name resolves per recipient.
+    const personalize = body.personalize
+    const amount = personalize?.amount ?? null
+    const link = personalize?.link ?? null
+
+    // Without personalization the body is identical for everyone, so the
+    // branded HTML is built once instead of per recipient.
+    const sharedHtml = personalize ? null : buildBrandedHtml(text, branding)
 
     const results: Array<{ to: string; status: 'sent' | 'failed'; messageId?: string; error?: string }> = []
     let sentCount = 0
@@ -125,13 +144,20 @@ export async function POST(request: Request) {
         : null
 
       try {
+        const recipientText = personalize
+          ? personalizeBody(text, { name, amount, link })
+          : text
+        const recipientHtml = personalize
+          ? buildBrandedHtml(recipientText, branding)
+          : sharedHtml
+
         const { messageId } = await sendSmtpEmail(
           smtp.transporter,
           { email: smtp.from.email, name: personalizedFrom ?? smtp.from.name },
           to,
           subject,
-          text,
-          html,
+          recipientText,
+          recipientHtml,
         )
         results.push({ to, status: 'sent', messageId })
         sentCount++
