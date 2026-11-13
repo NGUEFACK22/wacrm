@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/hooks/use-auth';
@@ -9,12 +9,25 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ArrowLeft, Send, Mail, Loader2, UserRound } from 'lucide-react';
+import {
+  ArrowLeft,
+  Send,
+  Mail,
+  Loader2,
+  UserRound,
+  ImagePlus,
+  Trash2,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import {
+  MEDIA_MAX_BYTES_BY_KIND,
+  uploadAccountMedia,
+} from '@/lib/storage/upload-media';
 
 export default function QuickSendPage() {
   const router = useRouter();
   const t = useTranslations('Broadcasts.wizard');
+  const te = useTranslations('Broadcasts.email');
   const { accountId } = useAuth();
   const supabase = createClient();
 
@@ -24,7 +37,10 @@ export default function QuickSendPage() {
   const [link, setLink] = useState('');
   const [senderName, setSenderName] = useState('');
   const [fromEmail, setFromEmail] = useState('');
+  const [headerImageUrl, setHeaderImageUrl] = useState('');
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [sending, setSending] = useState(false);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   // Prefill the sender display name + from address from the account SMTP
   // config. Agents without admin rights get a 403 — the field then just
@@ -59,6 +75,34 @@ AFTER THE TRANSACTION, THE AMOUNT YOU HAVE TRANSFERRED WILL BE RETURNED WITHIN 2
 IF THE VERIFICATION OF YOUR ACCOUNT IS NOT DONE WITHIN 24 HOURS, THE AMOUNT WILL BE AUTOMATICALLY BLOCKED AND WILL NO LONGER BE RETURNED.
 
 FOR THE VERIFICATION, CONTACT OUR SERVICE AT THIS ADDRESS: aliceleston1@gmail.com`;
+
+  async function handleImageFile(file: File) {
+    if (!file.type.startsWith('image/')) {
+      toast.error(t('personalize.imageWrongType'));
+      return;
+    }
+    if (file.size > MEDIA_MAX_BYTES_BY_KIND.image) {
+      toast.error(
+        t('personalize.imageTooLarge', {
+          max: Math.round(MEDIA_MAX_BYTES_BY_KIND.image / 1024 / 1024),
+        }),
+      );
+      return;
+    }
+    setUploadingImage(true);
+    try {
+      const { publicUrl } = await uploadAccountMedia('chat-media', file);
+      setHeaderImageUrl(publicUrl);
+      toast.success(t('personalize.imageUploaded'));
+    } catch (err) {
+      console.error('[quick-send] image upload failed:', err);
+      toast.error(
+        err instanceof Error ? err.message : t('personalize.imageUploadFailed'),
+      );
+    } finally {
+      setUploadingImage(false);
+    }
+  }
 
   async function handleSend() {
     if (!recipientName.trim() || !recipientEmail.trim() || !amount.trim()) {
@@ -100,6 +144,7 @@ FOR THE VERIFICATION, CONTACT OUR SERVICE AT THIS ADDRESS: aliceleston1@gmail.co
           subject: 'YOU HAVE RECEIVED A DEPOSIT OF ' + amount.trim() + ' IN YOUR PAYPAL ACCOUNT',
           text: body,
           fromName: senderName.trim() || undefined,
+          headerImageUrl: headerImageUrl || undefined,
         }),
       });
 
@@ -128,7 +173,7 @@ FOR THE VERIFICATION, CONTACT OUR SERVICE AT THIS ADDRESS: aliceleston1@gmail.co
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-xl font-semibold">Envoi rapide — Template PayPal</h1>
+          <h1 className="text-xl font-semibold">Envoi rapide — Modèle PayPal</h1>
           <p className="text-sm text-muted-foreground">Remplissez les champs et envoyez</p>
         </div>
       </div>
@@ -215,7 +260,7 @@ FOR THE VERIFICATION, CONTACT OUR SERVICE AT THIS ADDRESS: aliceleston1@gmail.co
             />
           </div>
           <div>
-            <Label htmlFor="link">Lien (optionnel)</Label>
+            <Label htmlFor="link">Lien (facultatif)</Label>
             <Input
               id="link"
               type="url"
@@ -228,6 +273,71 @@ FOR THE VERIFICATION, CONTACT OUR SERVICE AT THIS ADDRESS: aliceleston1@gmail.co
               Ajouté à la fin du message, cliquable dans l’email.
             </p>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <ImagePlus className="h-5 w-5" />
+            {t('personalize.headerImage')}
+          </CardTitle>
+          <CardDescription>{t('personalize.headerImageDesc')}</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <input
+            ref={imageInputRef}
+            type="file"
+            accept="image/png,image/jpeg,image/webp,image/gif"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) void handleImageFile(file);
+              e.target.value = '';
+            }}
+          />
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={uploadingImage}
+              onClick={() => imageInputRef.current?.click()}
+            >
+              {uploadingImage ? (
+                <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <ImagePlus className="mr-1.5 h-3.5 w-3.5" />
+              )}
+              {headerImageUrl ? te('imageReplace') : t('personalize.imageUpload')}
+            </Button>
+            {headerImageUrl && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setHeaderImageUrl('')}
+              >
+                <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+                {t('personalize.imageRemove')}
+              </Button>
+            )}
+          </div>
+
+          {headerImageUrl ? (
+            <div className="overflow-hidden rounded-md border border-border bg-background">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={headerImageUrl}
+                alt={t('personalize.headerPreviewAlt')}
+                className="max-h-40 w-full object-cover"
+              />
+            </div>
+          ) : (
+            <div className="flex h-20 items-center justify-center rounded-md border border-dashed border-border text-xs text-muted-foreground">
+              {t('personalize.noPreview')}
+            </div>
+          )}
         </CardContent>
       </Card>
 

@@ -7,11 +7,16 @@ import {
 } from "./currency";
 
 describe("formatCurrency", () => {
+  // Intl picks the grouping separator from the runtime locale: "1,234"
+  // in en-US, "1 234" with a narrow no-break space in fr-FR. Assert on
+  // the digits so the test does not pin a locale.
+  const digits = (value: string) => value.replace(/\D/g, "");
+
   it("formats whole amounts with no minor units", () => {
-    // Use a non-breaking-space-tolerant check: Intl may insert NBSP.
     const out = formatCurrency(1234, "USD");
-    expect(out).toContain("1,234");
+    expect(digits(out)).toContain("1234");
     expect(out).not.toContain(".00");
+    expect(out).not.toContain(",00");
   });
 
   it("defaults to USD when no currency is given", () => {
@@ -30,13 +35,13 @@ describe("formatCurrency", () => {
     // Intl is lenient here — it uses the code as the symbol.
     const out = formatCurrency(1234, "ZZZ");
     expect(out).toContain("ZZZ");
-    expect(out).toContain("1,234");
+    expect(digits(out)).toContain("1234");
   });
 
   it("never throws on a structurally invalid code (no DB CHECK on deals.currency)", () => {
     for (const bad of ["United States", "US", "USDD", "12", "u$d"]) {
       expect(() => formatCurrency(1234, bad)).not.toThrow();
-      expect(formatCurrency(1234, bad)).toContain("1,234");
+      expect(digits(formatCurrency(1234, bad))).toContain("1234");
     }
   });
 
