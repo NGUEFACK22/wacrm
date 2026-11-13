@@ -2027,7 +2027,8 @@
       "inbox": "Boîte de réception",
       "members": "Équipe members",
       "api": "UnPI keys",
-      "smtp": "SMTP / Email"
+      "smtp": "SMTP / Email",
+      "branding": "Image de marque"
     },
     "groups": {
       "account": "Compte",
@@ -2332,6 +2333,37 @@
       "testSent": "Email de test envoyé ({count})",
       "testFailed": "L'email de test a échoué — vérifiez vos paramètres SMTP et réessayez.",
       "configLoadFailed": "Échec du chargement de la configuration SMTP"
+    },
+    "branding": {
+      "title": "Image de marque",
+      "description": "Téléversez le logo de votre entreprise et définissez l'identité de marque utilisée dans les emails envoyés.",
+      "loading": "Chargement…",
+      "loadFailed": "Impossible de charger l'image de marque",
+      "logoTitle": "Logo de l'entreprise",
+      "logoDesc": "Affiché en haut de chaque email que vous envoyez.",
+      "logoHint": "PNG, JPEG, WebP, GIF ou SVG · 5 Mo max · un logo large rend mieux.",
+      "uploadLogo": "Téléverser le logo",
+      "replaceLogo": "Remplacer le logo",
+      "removeLogo": "Supprimer le logo",
+      "uploading": "Téléversement…",
+      "uploadFailed": "Échec du téléversement",
+      "logoUploaded": "Logo téléversé",
+      "logoRemoved": "Logo supprimé",
+      "invalidType": "Type de fichier non pris en charge. Utilisez PNG, JPEG, WebP, GIF ou SVG.",
+      "tooLarge": "Fichier trop volumineux (5 Mo max).",
+      "identityTitle": "Identité de marque",
+      "identityDesc": "Nom affiché dans le pied de page et couleur d'accent utilisée dans l'en-tête de l'email.",
+      "brandName": "Nom de la marque",
+      "brandNamePlaceholder": "Acme SARL",
+      "brandColor": "Couleur de la marque",
+      "invalidColor": "Utilisez une couleur hexadécimale valide, ex. #111827.",
+      "previewTitle": "Aperçu de l'email",
+      "previewDesc": "Rendu approximatif dans un client mail.",
+      "previewBody": "Bonjour,\n\nVoici à quoi ressemblera le corps de votre email avec votre image de marque appliquée ci-dessus.\n\nMerci pour votre confiance.",
+      "save": "Enregistrer l'image de marque",
+      "saving": "Enregistrement…",
+      "saved": "Image de marque enregistrée",
+      "saveFailed": "Impossible d'enregistrer l'image de marque"
     }
   },
   "SignupPage": {

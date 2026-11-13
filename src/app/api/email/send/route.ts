@@ -9,6 +9,10 @@ import {
   sendSmtpEmail,
 } from '@/lib/email/smtp'
 import {
+  buildBrandedHtml,
+  loadAccountBranding,
+} from '@/lib/email/branding'
+import {
   checkRateLimit,
   rateLimitResponse,
   RATE_LIMITS,
@@ -79,6 +83,11 @@ export async function POST(request: Request) {
       )
     }
 
+    // Brand the message once: logo header + footer when the account has
+    // configured branding, otherwise plain text only.
+    const branding = await loadAccountBranding(supabase, accountId)
+    const html = buildBrandedHtml(text, branding)
+
     const results: Array<{ to: string; status: 'sent' | 'failed'; messageId?: string; error?: string }> = []
     let sentCount = 0
     let failedCount = 0
@@ -94,6 +103,7 @@ export async function POST(request: Request) {
           to,
           subject,
           text,
+          html,
         )
         results.push({ to, status: 'sent', messageId })
         sentCount++

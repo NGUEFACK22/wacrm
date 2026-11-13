@@ -2027,7 +2027,8 @@
       "inbox": "Caixa de entrada",
       "members": "Membros da equipe",
       "api": "Chaves de API",
-      "smtp": "SMTP / Email"
+      "smtp": "SMTP / Email",
+      "branding": "Marca"
     },
     "groups": {
       "account": "Conta",
@@ -2332,6 +2333,37 @@
       "testSent": "Test email sent ({count})",
       "testFailed": "Test email failed — check your SMTP settings and try again.",
       "configLoadFailed": "Failed to load SMTP configuration"
+    },
+    "branding": {
+      "title": "Marca",
+      "description": "Envie o logotipo da sua empresa e defina a identidade de marca usada nos e-mails enviados.",
+      "loading": "Carregando…",
+      "loadFailed": "Falha ao carregar a marca",
+      "logoTitle": "Logotipo da empresa",
+      "logoDesc": "Exibido no topo de cada e-mail que você envia.",
+      "logoHint": "PNG, JPEG, WebP, GIF ou SVG · até 5 MB · logotipos largos ficam melhores.",
+      "uploadLogo": "Enviar logotipo",
+      "replaceLogo": "Substituir logotipo",
+      "removeLogo": "Remover logotipo",
+      "uploading": "Enviando…",
+      "uploadFailed": "Falha no envio",
+      "logoUploaded": "Logotipo enviado",
+      "logoRemoved": "Logotipo removido",
+      "invalidType": "Tipo de arquivo não suportado. Use PNG, JPEG, WebP, GIF ou SVG.",
+      "tooLarge": "O arquivo é muito grande (máx. 5 MB).",
+      "identityTitle": "Identidade da marca",
+      "identityDesc": "Nome exibido no rodapé e cor de destaque usada no cabeçalho do e-mail.",
+      "brandName": "Nome da marca",
+      "brandNamePlaceholder": "Acme Ltda.",
+      "brandColor": "Cor da marca",
+      "invalidColor": "Use uma cor hexadecimal válida, ex. #111827.",
+      "previewTitle": "Prévia do e-mail",
+      "previewDesc": "Renderização aproximada em um cliente de e-mail.",
+      "previewBody": "Olá,\n\nÉ assim que o corpo do seu e-mail ficará com a sua marca aplicada acima.\n\nObrigado pela preferência.",
+      "save": "Salvar marca",
+      "saving": "Salvando…",
+      "saved": "Marca salva",
+      "saveFailed": "Não foi possível salvar a marca"
     }
   },
   "SignupPage": {

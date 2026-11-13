@@ -112,12 +112,16 @@ export async function sendSmtpEmail(
   to: string,
   subject: string,
   text: string,
+  html?: string | null,
 ): Promise<{ messageId: string }> {
   const info = await transporter.sendMail({
     from: `"${from.name ?? ''}" <${from.email}>`,
     to,
     subject,
     text,
+    // Multipart: clients that render HTML get the branded shell, the
+    // rest fall back to the plain-text part.
+    ...(html ? { html } : {}),
   });
   return { messageId: info.messageId };
 }

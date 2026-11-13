@@ -1,4 +1,5 @@
 import {
+  Building2,
   Coins,
   FileText,
   Inbox,
@@ -30,6 +31,7 @@ export const SETTINGS_SECTIONS = [
   'appearance',
   'whatsapp',
   'smtp',
+  'branding',
   'templates',
   'quick-replies',
   'inbox',
@@ -58,6 +60,7 @@ export const SECTION_META: Record<SettingsSection, SectionMeta> = {
   appearance: { id: 'appearance', label: 'Appearance', icon: Palette, group: 'account' },
   whatsapp: { id: 'whatsapp', label: 'WhatsApp', icon: PlugZap, group: 'workspace' },
   smtp: { id: 'smtp', label: 'SMTP / Email', icon: Mail, group: 'workspace' },
+  branding: { id: 'branding', label: 'Branding', icon: Building2, group: 'workspace' },
   templates: { id: 'templates', label: 'Templates', icon: FileText, group: 'workspace' },
   'quick-replies': { id: 'quick-replies', label: 'Quick replies', icon: Zap, group: 'workspace' },
   inbox: { id: 'inbox', label: 'Inbox', icon: Inbox, group: 'workspace' },

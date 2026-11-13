@@ -2027,7 +2027,8 @@
       "inbox": "인박스",
       "members": "팀원",
       "api": "API 키",
-      "smtp": "SMTP / Email"
+      "smtp": "SMTP / Email",
+      "branding": "브랜딩"
     },
     "groups": {
       "account": "계정",
@@ -2332,6 +2333,37 @@
       "testSent": "Test email sent ({count})",
       "testFailed": "Test email failed — check your SMTP settings and try again.",
       "configLoadFailed": "Failed to load SMTP configuration"
+    },
+    "branding": {
+      "title": "브랜딩",
+      "description": "회사 로고를 업로드하고 발송되는 이메일에 사용할 브랜드 아이덴티티를 설정합니다.",
+      "loading": "불러오는 중…",
+      "loadFailed": "브랜딩을 불러오지 못했습니다",
+      "logoTitle": "회사 로고",
+      "logoDesc": "보내는 모든 이메일 상단에 표시됩니다.",
+      "logoHint": "PNG, JPEG, WebP, GIF 또는 SVG · 최대 5MB · 가로형 로고가 가장 잘 보입니다.",
+      "uploadLogo": "로고 업로드",
+      "replaceLogo": "로고 교체",
+      "removeLogo": "로고 삭제",
+      "uploading": "업로드 중…",
+      "uploadFailed": "업로드 실패",
+      "logoUploaded": "로고가 업로드되었습니다",
+      "logoRemoved": "로고가 삭제되었습니다",
+      "invalidType": "지원하지 않는 파일 형식입니다. PNG, JPEG, WebP, GIF 또는 SVG를 사용하세요.",
+      "tooLarge": "파일이 너무 큽니다(최대 5MB).",
+      "identityTitle": "브랜드 아이덴티티",
+      "identityDesc": "푸터에 표시되는 이름과 이메일 헤더에 사용되는 강조 색상입니다.",
+      "brandName": "브랜드 이름",
+      "brandNamePlaceholder": "Acme 주식회사",
+      "brandColor": "브랜드 색상",
+      "invalidColor": "유효한 16진수 색상을 사용하세요. 예: #111827.",
+      "previewTitle": "이메일 미리보기",
+      "previewDesc": "메일 클라이언트에서의 대략적인 렌더링입니다.",
+      "previewBody": "안녕하세요,\n\n브랜딩이 적용된 이메일 본문의 모습입니다.\n\n이용해 주셔서 감사합니다.",
+      "save": "브랜딩 저장",
+      "saving": "저장 중…",
+      "saved": "브랜딩이 저장되었습니다",
+      "saveFailed": "브랜딩을 저장하지 못했습니다"
     }
   },
   "SignupPage": {

@@ -2027,7 +2027,8 @@
       "inbox": "Bandeja de entrada",
       "members": "Miembros del equipo",
       "api": "Claves de API",
-      "smtp": "SMTP / Email"
+      "smtp": "SMTP / Email",
+      "branding": "Marca"
     },
     "groups": {
       "account": "Cuenta",
@@ -2332,6 +2333,37 @@
       "testSent": "Test email sent ({count})",
       "testFailed": "Test email failed — check your SMTP settings and try again.",
       "configLoadFailed": "Failed to load SMTP configuration"
+    },
+    "branding": {
+      "title": "Marca",
+      "description": "Sube el logotipo de tu empresa y define la identidad de marca que se usa en los correos enviados.",
+      "loading": "Cargando…",
+      "loadFailed": "No se pudo cargar la marca",
+      "logoTitle": "Logotipo de la empresa",
+      "logoDesc": "Se muestra en la parte superior de cada correo que envías.",
+      "logoHint": "PNG, JPEG, WebP, GIF o SVG · hasta 5 MB · los logotipos anchos se ven mejor.",
+      "uploadLogo": "Subir logotipo",
+      "replaceLogo": "Reemplazar logotipo",
+      "removeLogo": "Quitar logotipo",
+      "uploading": "Subiendo…",
+      "uploadFailed": "Error al subir",
+      "logoUploaded": "Logotipo subido",
+      "logoRemoved": "Logotipo eliminado",
+      "invalidType": "Tipo de archivo no compatible. Usa PNG, JPEG, WebP, GIF o SVG.",
+      "tooLarge": "El archivo es demasiado grande (máx. 5 MB).",
+      "identityTitle": "Identidad de marca",
+      "identityDesc": "Nombre que aparece en el pie y color de acento usado en la cabecera del correo.",
+      "brandName": "Nombre de la marca",
+      "brandNamePlaceholder": "Acme S.A.",
+      "brandColor": "Color de la marca",
+      "invalidColor": "Usa un color hexadecimal válido, p. ej. #111827.",
+      "previewTitle": "Vista previa del correo",
+      "previewDesc": "Representación aproximada en un cliente de correo.",
+      "previewBody": "Hola:\n\nAsí se verá el cuerpo de tu correo con tu marca aplicada arriba.\n\nGracias por tu confianza.",
+      "save": "Guardar marca",
+      "saving": "Guardando…",
+      "saved": "Marca guardada",
+      "saveFailed": "No se pudo guardar la marca"
     }
   },
   "SignupPage": {
