@@ -614,9 +614,9 @@
       "phoneNeedsCountryCode": "국가 코드를 포함하세요. 번호는 +로 시작해야 합니다 (예: +14155550123)",
       "notAuthenticated": "인증되지 않았습니다",
       "notLinkedToAccount": "프로필이 계정에 연결되어 있지 않습니다.",
-      "emailOptionalHint": "Optional — used for the free email broadcast channel.",
-      "companyHint": "Used for email broadcast filtering by industry.",
-      "companyTypeLabel": "Company type / tags"
+      "emailOptionalHint": "선택 사항 — 무료 이메일 방송 채널에 사용됩니다.",
+      "companyHint": "업종별 이메일 방송 필터링에 사용됩니다.",
+      "companyTypeLabel": "회사 유형 / 태그"
     },
     "detailView": {
       "tabs": {
@@ -684,7 +684,7 @@
     },
     "importModal": {
       "title": "연락처 가져오기",
-      "desc": "필수 <phoneCode>phone</phoneCode> 열이 포함된 CSV를 업로드하세요. 선택 항목: <nameCode>name</nameCode>, <emailCode>email</emailCode>, <companyCode>company</companyCode>, <tagsCode>tags</tagsCode> (쉼표로 구분; 여러 태그가 있는 셀은 따옴표로 묶으세요).",
+      "desc": "필수 <phoneCode>phone</phoneCode> 열이 포함된 CSV를 업로드하세요. 선택 항목: <nameCode>name</nameCode>, <emailCode>email</emailCode>, <companyCode>company</companyCode>, <tagsCode>tags</tagsCode> (쉼표로 구분하며, 태그가 여러 개인 셀은 따옴표로 감싸세요).",
       "uploadDropzone": "클릭하여 CSV 파일 선택",
       "uploadHint": "브라우저 제한까지 .csv 업로드 가능",
       "rowsReady": "{count}개 행 준비됨",
@@ -945,7 +945,7 @@
         "read": "읽음",
         "replied": "응답함",
         "failed": "실패",
-        "emailRecipientCount": "Contacts with email"
+        "emailRecipientCount": "이메일이 있는 연락처"
       },
       "toastFailedDelete": "삭제하지 못했습니다: {error}",
       "toastDeleted": "브로드캐스트가 삭제되었습니다",
@@ -993,7 +993,7 @@
         "noTemplates": "사용 가능한 템플릿이 없습니다.",
         "createFirst": "먼저 설정에서 템플릿을 만드세요.",
         "errorLoad": "템플릿을 불러오지 못했습니다",
-        "industryFilter": "Filter by company type",
+        "industryFilter": "회사 유형으로 필터링",
         "allIndustries": "All types",
         "metaApproved": "WhatsApp",
         "builtIn": "Starter",
@@ -1006,10 +1006,10 @@
           "education": "Education",
           "restaurant": "Restaurant",
           "agency": "Agency",
-          "b2b": "B2B / Consulting",
+          "b2b": "B2B / 컨설팅",
           "realestate": "Real estate"
         },
-        "noTemplatesForChannel": "No templates tagged for the {channel} channel. Create one in Settings or switch channel in step 4.",
+        "noTemplatesForChannel": "{channel} 채널에 태그된 템플릿이 없습니다. 설정에서 새로 만들거나 4단계에서 채널을 전환하세요.",
         "allLanguages": "모든 언어",
         "languages": {
           "fr": "프랑스어",
@@ -1130,34 +1130,34 @@
         "channel": "Channel:",
         "channelWhatsapp": "WhatsApp (Meta)",
         "channelEmail": "Email (free)",
-        "emailNow": "Open Email Draft",
-        "emailRecipientCount": "{count} recipient(s) with an email address",
-        "emailNoRecipients": "No contact in this audience has an email address.",
-        "emailEstimatedReach": "Contacts with email",
+        "emailNow": "이메일 초안 열기",
+        "emailRecipientCount": "이메일 주소가 있는 수신자 {count}명",
+        "emailNoRecipients": "이 대상 그룹에는 이메일 주소가 있는 연락처가 없습니다.",
+        "emailEstimatedReach": "이메일이 있는 연락처",
         "smtpTestTitle": "Test SMTP",
-        "smtpTestDesc": "Send a test email to verify your SMTP configuration works before launching the broadcast.",
+        "smtpTestDesc": "방송을 시작하기 전에 테스트 이메일을 보내 SMTP 설정이 제대로 작동하는지 확인하세요.",
         "testEmail": "Test recipient",
         "testEmailPlaceholder": "you@example.com",
-        "sendTestEmail": "Send Test Email"
+        "sendTestEmail": "테스트 이메일 보내기"
       },
       "channel": {
-        "title": "Choose Send Channel",
-        "subtitle": "WhatsApp goes through Meta approved templates. Email is free and opens a draft in your mail client.",
+        "title": "발송 채널 선택",
+        "subtitle": "WhatsApp은 Meta에서 승인한 템플릿을 통해 발송됩니다. 이메일은 무료이며, 자체 SMTP(서버 측) 또는 메일 클라이언트(mailto:)를 통해 보낼 수 있습니다.",
         "whatsapp": "WhatsApp",
         "email": "Email",
-        "whatsappDesc": "Send via your Meta WhatsApp number (requires an approved template).",
-        "emailDesc": "Open a ready-to-send email for all contacts with an address. Free, unlimited, no setup.",
-        "emailNoRecipient": "No contacts in this audience have an email address.",
-        "emailOpened": "Your email client should have opened with a draft for {count} recipients.",
-        "emailComposeManual": "Open your mail app and send",
-        "emailSmtpSent": "{count} email(s) sent via SMTP{failed, plural, =0 {} other {, {failed} failed}}."
+        "whatsappDesc": "Meta WhatsApp 번호를 통해 발송합니다(승인된 템플릿 필요).",
+        "emailDesc": "자체 SMTP(서버 측)로 발송하거나 메일 클라이언트에 초안을 열어 보냅니다. 무료이며 횟수 제한이 없습니다.",
+        "emailNoRecipient": "이 대상 그룹에는 이메일 주소가 있는 연락처가 없습니다.",
+        "emailOpened": "메일 클라이언트에 {count}명 수신자용 초안이 열렸을 것입니다.",
+        "emailComposeManual": "메일 앱을 열고 직접 발송하세요",
+        "emailSmtpSent": "SMTP를 통해 이메일 {count}건을 보냈습니다{failed, plural, =0 {} other {, {failed}건 실패}}."
       },
       "smtpTest": {
-        "ok": "SMTP test successful — email sent.",
-        "error": "SMTP test failed.",
-        "sent": "{count} test email(s) sent.",
-        "failed": "Test failed: {error}",
-        "emailRequired": "Please enter a recipient address."
+        "ok": "SMTP 테스트에 성공했습니다 — 이메일이 발송되었습니다.",
+        "error": "SMTP 테스트에 실패했습니다.",
+        "sent": "테스트 이메일 {count}건을 발송했습니다.",
+        "failed": "테스트 실패: {error}",
+        "emailRequired": "수신자 주소를 입력하세요."
       }
     },
     "sending": {
@@ -1221,7 +1221,7 @@
       "sendFailed": "발송 실패",
       "doneAll": "{count, plural, other {#통의 이메일을 보냈습니다}}",
       "doneNone": "보낸 것이 없습니다 — {count, plural, other {#건 오류}}",
-      "donePartial": "{sent}건 성공, {failed}건 실패",
+      "donePartial": "{sent}건 발송, {failed}건 실패",
       "image": "헤더 이미지 (선택)",
       "imageUpload": "이미지 추가",
       "imageReplace": "이미지 교체",
@@ -2105,7 +2105,7 @@
       "inbox": "인박스",
       "members": "팀원",
       "api": "API 키",
-      "smtp": "SMTP / Email",
+      "smtp": "SMTP / 이메일",
       "branding": "브랜딩"
     },
     "groups": {
@@ -2366,51 +2366,51 @@
       "save": "저장"
     },
     "smtp": {
-      "title": "SMTP / Email",
-      "description": "Send broadcasts by email through your own SMTP server. Free, unlimited — no Meta or third-party messaging API needed.",
-      "personalEmailNoticeTitle": "Using a personal mailbox?",
-      "personalEmailNotice": "If you use Gmail, Outlook, Yahoo or iCloud, you cannot use your normal login password. Generate an \"App Password\" in your provider's security settings and paste it below. Gmail: go to your Google Account → Security → 2-Step Verification → App passwords.",
+      "title": "SMTP / 이메일",
+      "description": "자체 SMTP 서버를 통해 이메일로 방송을 발송합니다. 무료이며 횟수 제한이 없고, Meta나 타사 메시징 API가 필요하지 않습니다.",
+      "personalEmailNoticeTitle": "개인 메일함을 사용하시나요?",
+      "personalEmailNotice": "Gmail, Outlook, Yahoo, iCloud를 사용하는 경우 일반 로그인 비밀번호로는 설정할 수 없습니다. 사용 중인 서비스의 보안 설정에서 \"앱 비밀번호\"를 생성한 뒤 아래에 붙여 넣으세요. Gmail: Google 계정 → 보안 → 2단계 인증 → 앱 비밀번호로 이동하세요.",
       "serverTitle": "SMTP Server",
-      "serverDesc": "Your outgoing mail server details.",
+      "serverDesc": "발신 메일 서버 정보입니다.",
       "host": "SMTP Host",
       "hostPlaceholder": "smtp.gmail.com",
       "port": "Port",
       "secure": "Use TLS/SSL",
       "user": "Username",
       "userPlaceholder": "you@example.com",
-      "password": "Password / App Password",
+      "password": "비밀번호 / 앱 비밀번호",
       "passwordPlaceholder": "••••••••••••••••",
-      "passwordHidden": "Password is hidden. Re-enter it to update configuration.",
+      "passwordHidden": "비밀번호가 숨겨져 있습니다. 설정을 변경하려면 다시 입력하세요.",
       "senderTitle": "Sender Address",
-      "senderDesc": "The \"From\" address recipients will see.",
+      "senderDesc": "수신자가 보게 될 \"보낸 사람\" 주소입니다.",
       "fromEmail": "From Email",
       "fromEmailPlaceholder": "you@example.com",
       "fromName": "From Name",
       "fromNamePlaceholder": "Your Name",
       "providersTitle": "Common Providers",
-      "providersDesc": "Pre-filled settings for popular personal mailboxes.",
-      "gmailNote": "Use an App Password, not your regular Gmail password.",
-      "outlookNote": "Use an App Password if you have 2FA enabled.",
-      "yahooNote": "Use an App Password; Yahoo blocks regular passwords for SMTP.",
-      "icloudNote": "Use an App Password generated in your Apple ID account settings.",
-      "gmailAppPassword": "How to create a Gmail App Password",
-      "loadFailed": "Failed to load SMTP configuration",
-      "hostRequired": "SMTP host is required",
-      "userRequired": "Username is required",
-      "passwordRequired": "Password / App Password is required",
-      "fromEmailRequired": "From email is required",
-      "invalidPort": "Invalid port number",
-      "saveFailed": "Failed to save SMTP configuration",
-      "saved": "SMTP configuration saved",
+      "providersDesc": "주요 개인 메일함에 대한 사전 설정입니다.",
+      "gmailNote": "일반 Gmail 비밀번호가 아닌 앱 비밀번호를 사용하세요.",
+      "outlookNote": "2단계 인증을 사용하는 경우 앱 비밀번호를 사용하세요.",
+      "yahooNote": "앱 비밀번호를 사용하세요. Yahoo는 SMTP에 일반 비밀번호 사용을 차단합니다.",
+      "icloudNote": "Apple ID 계정 설정에서 생성한 앱 비밀번호를 사용하세요.",
+      "gmailAppPassword": "Gmail 앱 비밀번호 생성 방법",
+      "loadFailed": "SMTP 설정을 불러오지 못했습니다",
+      "hostRequired": "SMTP 호스트는 필수입니다",
+      "userRequired": "사용자 이름은 필수입니다",
+      "passwordRequired": "비밀번호 / 앱 비밀번호는 필수입니다",
+      "fromEmailRequired": "보낸 사람 이메일은 필수입니다",
+      "invalidPort": "포트 번호가 올바르지 않습니다",
+      "saveFailed": "SMTP 설정을 저장하지 못했습니다",
+      "saved": "SMTP 설정이 저장되었습니다",
       "saving": "Saving...",
       "saveConfig": "Save Configuration",
       "testing": "Testing...",
-      "testConnection": "Send Test Email",
-      "testSubject": "wacrm — SMTP Test",
-      "testBody": "This is a test email from wacrm. If you received it, your SMTP configuration is working correctly.",
-      "testSent": "Test email sent ({count})",
-      "testFailed": "Test email failed — check your SMTP settings and try again.",
-      "configLoadFailed": "Failed to load SMTP configuration"
+      "testConnection": "테스트 이메일 보내기",
+      "testSubject": "wacrm — SMTP 테스트",
+      "testBody": "wacrm에서 보낸 테스트 이메일입니다. 이 메일을 받으셨다면 SMTP 설정이 올바르게 작동하고 있습니다.",
+      "testSent": "테스트 이메일을 발송했습니다 ({count})",
+      "testFailed": "테스트 이메일 발송에 실패했습니다 — SMTP 설정을 확인한 후 다시 시도하세요.",
+      "configLoadFailed": "SMTP 설정을 불러오지 못했습니다"
     },
     "branding": {
       "title": "브랜딩",
@@ -2526,7 +2526,7 @@
     "acceptInvitation": "초대 수락",
     "acceptNote": "수락하면 로그인 계정이 {name}으로 이동합니다. 가입 시 만들어진 빈 개인 계정은 정리됩니다.",
     "conflictTitle": "이 계정으로는 {name}에 참여할 수 없습니다",
-    "conflictBody": "<account>{name}</account>에 참여하려면 로그아웃한 뒤 다른 이메일 주소로 다시 가입하세요. 초대 링크는 만료되지 않은 한 계속 유효합니다.",
+    "conflictBody": "<account>{name}</account>에 참여하려면 로그아웃한 뒤 다른 이메일 주소로 다시 가입하세요. 초대 링크는 만료되지 않은 동안 유효합니다.",
     "staySignedIn": "로그인 유지",
     "signingOut": "로그아웃 중…",
     "signOutSwitch": "로그아웃 후 다른 이메일 사용",
@@ -2715,7 +2715,7 @@
       "askName": "성함이 어떻게 되시나요?",
       "askEmail": "감사합니다, {name}님! 업무용 이메일 주소를 알려주세요.",
       "askCompany": "거의 끝났습니다 — 회사 이름이 무엇인가요?",
-      "handoffNote": "신규 리드 — 이름={name}, 이메일={email}, 회사={company}."
+      "handoffNote": "신규 리드 — name={name}, email={email}, company={company}."
     }
   },
   "LibErrors": {
@@ -3082,7 +3082,7 @@
       "templateNameRequired": "템플릿 이름은 필수입니다",
       "templateMalformed": "로컬 템플릿 데이터가 손상되었습니다 — 브로드캐스트 전에 설정에서 \"Meta에서 동기화\"를 실행해 복구하세요.",
       "invalidPhoneFormat": "전화번호 형식이 올바르지 않습니다",
-      "starterTemplateNotMeta": "This is a built-in starter template that has no Meta counterpart. It can be used for email broadcasts but not WhatsApp — submit it to Meta first, or switch to a synced template."
+      "starterTemplateNotMeta": "Meta에 대응 항목이 없는 내장 시작 템플릿입니다. 이메일 방송에는 사용할 수 있지만 WhatsApp에는 사용할 수 없으므로, 먼저 Meta에 제출하거나 동기화된 템플릿으로 전환하세요."
     },
     "whatsappConfig": {
       "fetchFailed": "설정을 가져오지 못했습니다",
@@ -3120,7 +3120,7 @@
       "dbUpsertFailed": "반응은 Meta로 전송되었지만 DB에 저장하지 못했습니다"
     },
     "send": {
-      "idsRequired": "conversation_id 또는 contact_id와 message_type이 필요합니다",
+      "idsRequired": "conversation_id 또는 contact_id와 message_type은 필수입니다",
       "contactNotFound": "연락처를 찾을 수 없습니다",
       "openConversationFailed": "이 연락처와 대화를 열지 못했습니다"
     },
@@ -3151,13 +3151,13 @@
       "syncFailed": "템플릿을 동기화하지 못했습니다"
     },
     "email": {
-      "invalidJsonBody": "Invalid JSON body",
-      "smtpFieldsRequired": "host, user, password and from_email are required",
-      "smtpInvalidPort": "Invalid SMTP port",
-      "smtpSaveFailed": "Failed to save SMTP configuration: {message}",
-      "smtpNotConfigured": "No SMTP configuration saved for this account. Save SMTP settings first, or fall back to mailto:.",
-      "recipientsRequired": "recipients must be a non-empty array",
-      "subjectRequired": "subject is required",
+      "invalidJsonBody": "JSON 본문이 올바르지 않습니다",
+      "smtpFieldsRequired": "host, user, password, from_email은 필수입니다",
+      "smtpInvalidPort": "SMTP 포트가 올바르지 않습니다",
+      "smtpSaveFailed": "SMTP 설정을 저장하지 못했습니다: {message}",
+      "smtpNotConfigured": "이 계정에 저장된 SMTP 설정이 없습니다. 먼저 SMTP 설정을 저장하거나 mailto:로 대체하세요.",
+      "recipientsRequired": "recipients는 비어 있지 않은 배열이어야 합니다",
+      "subjectRequired": "subject는 필수입니다",
       "unknownError": "Unknown error"
     }
   }
