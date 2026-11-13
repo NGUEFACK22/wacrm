@@ -84,14 +84,24 @@ function renderBodyHtml(text: string, color: string): string {
   });
 }
 
+/** Only allow a well-formed BCP-47 tag into the `lang` attribute. */
+function safeLang(value: string | null | undefined): string {
+  if (value && /^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$/.test(value)) return value;
+  return 'en';
+}
+
 /**
  * Wrap a plain-text email body in a branded HTML shell.
  *
  * `heroImageUrl` is the campaign-level header image picked in the
- * broadcast composer. It is rendered above the body, under the brand
- * logo, at the full inner width. When it is set the shell is built even
- * for an account with no branding at all — otherwise an unbranded
- * account could upload an image and silently get plain text.
+ * broadcast composer. It is rendered full-bleed at the very top of the
+ * card, above the brand mark. When it is set the shell is built even for
+ * an account with no branding at all — otherwise an unbranded account
+ * could upload an image and silently get plain text.
+ *
+ * `lang` sets the document language: mail clients and screen readers use
+ * it for hyphenation, spell-check and pronunciation, so a French
+ * catalogue must not ship `<html lang="en">`.
  *
  * When there is neither branding nor a hero image, returns `null` so the
  * caller sends plain text only (no pointless wrapper).
@@ -99,7 +109,11 @@ function renderBodyHtml(text: string, color: string): string {
 export function buildBrandedHtml(
   text: string,
   branding: AccountBranding,
-  options?: { heroImageUrl?: string | null; heroAlt?: string | null },
+  options?: {
+    heroImageUrl?: string | null;
+    heroAlt?: string | null;
+    lang?: string | null;
+  },
 ): string | null {
   const logo = safeUrl(branding.logo_url);
   const brandName = branding.brand_name?.trim() || null;
@@ -109,6 +123,7 @@ export function buildBrandedHtml(
   const color = safeColor(branding.brand_color);
   const safeBrand = brandName ? escapeHtml(brandName) : '';
   const heroAlt = options?.heroAlt?.trim() || safeBrand || '';
+  const lang = safeLang(options?.lang);
   const bodyHtml = renderBodyHtml(text, color);
   const year = new Date().getFullYear();
 
@@ -146,7 +161,7 @@ export function buildBrandedHtml(
     : '';
 
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="${lang}">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />

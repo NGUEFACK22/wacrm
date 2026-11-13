@@ -125,12 +125,18 @@ export async function POST(request: Request) {
     const amount = personalize?.amount ?? null
     const link = personalize?.link ?? null
     const headerImageUrl = body.headerImageUrl?.trim() || null
+    // Document language for the HTML part: mail clients use it for
+    // hyphenation, spell-check and screen readers.
+    const htmlLang = process.env.NEXT_PUBLIC_APP_LOCALE ?? null
 
     // Without personalization the body is identical for everyone, so the
     // branded HTML is built once instead of per recipient.
     const sharedHtml = personalize
       ? null
-      : buildBrandedHtml(text, branding, { heroImageUrl: headerImageUrl })
+      : buildBrandedHtml(text, branding, {
+          heroImageUrl: headerImageUrl,
+          lang: htmlLang,
+        })
 
     const results: Array<{ to: string; status: 'sent' | 'failed'; messageId?: string; error?: string }> = []
     let sentCount = 0
@@ -153,7 +159,10 @@ export async function POST(request: Request) {
           ? personalizeBody(text, { name, amount, link })
           : text
         const recipientHtml = personalize
-          ? buildBrandedHtml(recipientText, branding, { heroImageUrl: headerImageUrl })
+          ? buildBrandedHtml(recipientText, branding, {
+              heroImageUrl: headerImageUrl,
+              lang: htmlLang,
+            })
           : sharedHtml
 
         const { messageId } = await sendSmtpEmail(

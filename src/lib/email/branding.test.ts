@@ -139,3 +139,34 @@ describe('buildBrandedHtml campaign hero image', () => {
     expect(html).toContain('&quot; onerror=&quot;alert(1)');
   });
 });
+
+describe('buildBrandedHtml document language', () => {
+  const branded = {
+    logo_url: null,
+    brand_name: 'Acme',
+    brand_color: '#111827',
+  };
+
+  it('declares English when no language is supplied', () => {
+    const html = buildBrandedHtml('hello', branded);
+    expect(html).toContain('<html lang="en">');
+  });
+
+  it('uses the language the caller passes', () => {
+    const html = buildBrandedHtml('bonjour', branded, { lang: 'fr' });
+    expect(html).toContain('<html lang="fr">');
+  });
+
+  it('accepts a regional tag', () => {
+    const html = buildBrandedHtml('bonjour', branded, { lang: 'fr-CA' });
+    expect(html).toContain('<html lang="fr-CA">');
+  });
+
+  it('falls back to English rather than echoing an injected attribute', () => {
+    const html = buildBrandedHtml('hello', branded, {
+      lang: '"><script>alert(1)</script>',
+    });
+    expect(html).toContain('<html lang="en">');
+    expect(html).not.toContain('<script>');
+  });
+});
